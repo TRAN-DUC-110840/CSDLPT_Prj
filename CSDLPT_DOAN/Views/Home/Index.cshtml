@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Câu Lạc Bộ";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold text-dark">Quản lý Câu Lạc Bộ</h1>
+        <button class="btn btn-primary d-flex align-items-center" onclick="openModal('addModal')">
+            <i class="bi bi-plus-lg me-2"></i> Thêm CLB mới
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="text-start">Mã CLB</th>
+                        <th scope="col" class="text-start">Tên Câu Lạc Bộ</th>
+                        <th scope="col" class="text-start">Tên Khoa</th>
+                        <th scope="col" class="text-end">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CLB01</strong></td>
+                        <td>CLB Tin Học</td>
+                        <td>K1</td>
+                        <td class="text-end">
+                            <button class="btn btn-link text-primary p-0 me-3">Xem</button>
+                            <button class="btn btn-link text-warning p-0 me-3">Sửa</button>
+                            <button class="btn btn-link text-danger p-0">Xóa</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLB02</strong></td>
+                        <td>CLB Tiếng Anh</td>
+                        <td>K2</td>
+                        <td class="text-end">
+                            <button class="btn btn-link text-primary p-0 me-3">Xem</button>
+                            <button class="btn btn-link text-warning p-0 me-3">Sửa</button>
+                            <button class="btn btn-link text-danger p-0">Xóa</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLB03</strong></td>
+                        <td>CLB Võ Thuật</td>
+                        <td>K3</td>
+                        <td class="text-end">
+                            <button class="btn btn-link text-primary p-0 me-3">Xem</button>
+                            <button class="btn btn-link text-warning p-0 me-3">Sửa</button>
+                            <button class="btn btn-link text-danger p-0">Xóa</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm CLB -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addModalLabel">Thêm Câu Lạc Bộ Mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Mã CLB</label>
+                        <input type="text" class="form-control" placeholder="Nhập mã CLB..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên Câu Lạc Bộ</label>
+                        <input type="text" class="form-control" placeholder="Nhập tên CLB..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên Khoa</label>
+                        <input type="text" class="form-control" placeholder="Nhập tên khoa..." />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Bootstrap Icons (tùy chọn, dùng cho nút thêm) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <script>
+        // Hiển thị modal thêm mới
+        function openModal(id) {
+            var modal = new bootstrap.Modal(document.getElementById(id));
+            modal.show();
+        }
+    </script>
+}
