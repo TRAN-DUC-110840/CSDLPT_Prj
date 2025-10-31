@@ -1,0 +1,182 @@
+﻿@{
+    Layout = "_Layout";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Giảng Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <main class="flex-1 p-8 overflow-y-auto">
+            <header class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">Quản lý Giảng Viên</h1>
+                <button onclick="openModal('addModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center">
+                    <ion-icon name="add-outline" class="mr-2"></ion-icon>
+                    Thêm Giảng Viên
+                </button>
+            </header>
+
+            <!-- Bảng dữ liệu -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã GV</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên Giảng Viên</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khoa</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 text-sm text-gray-900 font-medium">GV01</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">Nguyễn Văn A</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">vana@huflit.edu.vn</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">Khoa CNTT</td>
+                            <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">Xem</button>
+                                <button onclick="openModal('editModal', 'GV01', 'Nguyễn Văn A', 'vana@huflit.edu.vn', 'Khoa CNTT')" class="text-yellow-600 hover:text-yellow-900">Sửa</button>
+                                <button onclick="openModal('deleteModal', 'GV01')" class="text-red-600 hover:text-red-900">Xóa</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 text-sm text-gray-900 font-medium">GV02</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">Trần Thị B</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">thib@huflit.edu.vn</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">Khoa Ngoại Ngữ</td>
+                            <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">Xem</button>
+                                <button onclick="openModal('editModal', 'GV02', 'Trần Thị B', 'thib@huflit.edu.vn', 'Khoa Ngoại Ngữ')" class="text-yellow-600 hover:text-yellow-900">Sửa</button>
+                                <button onclick="openModal('deleteModal', 'GV02')" class="text-red-600 hover:text-red-900">Xóa</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Thêm -->
+    <div id="addModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <form class="p-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Thêm Giảng Viên Mới</h3>
+                    <button type="button" onclick="closeModal('addModal')" class="text-gray-400 hover:text-gray-600">
+                        <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                    </button>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tên Giảng Viên</label>
+                    <input type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Khoa</label>
+                    <input type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('addModal')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Hủy</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Sửa -->
+    <div id="editModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <form class="p-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Chỉnh Sửa Thông Tin Giảng Viên</h3>
+                    <button type="button" onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600">
+                        <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                    </button>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Mã GV</label>
+                    <input type="text" id="editMaGV" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tên Giảng Viên</label>
+                    <input type="text" id="editTenGV" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="editEmail" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Khoa</label>
+                    <input type="text" id="editKhoa" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('editModal')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Hủy</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Xóa -->
+    <div id="deleteModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full bg-red-100">
+                    <ion-icon name="warning-outline" class="text-2xl text-red-600"></ion-icon>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Xóa Giảng Viên</h3>
+                    <p class="text-sm text-gray-500 mt-1">Bạn có chắc chắn muốn xóa giảng viên <strong id="deleteMaGV"></strong> không?</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('deleteModal')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Hủy</button>
+                <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id, ...data) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            if (id === 'editModal') {
+                document.getElementById('editMaGV').value = data[0];
+                document.getElementById('editTenGV').value = data[1];
+                document.getElementById('editEmail').value = data[2];
+                document.getElementById('editKhoa').value = data[3];
+            } else if (id === 'deleteModal') {
+                document.getElementById('deleteMaGV').textContent = data[0];
+            }
+            modal.classList.add('active');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
+        }
+
+        window.onclick = e => {
+            document.querySelectorAll('.modal').forEach(m => {
+                if (e.target === m) m.classList.remove('active');
+            });
+        };
+    </script>
+</body>
+</html>
