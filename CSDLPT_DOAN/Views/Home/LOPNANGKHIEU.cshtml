@@ -6,6 +6,194 @@
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 70px; /* chừa khoảng trống cho footer */
+            background-color: #f8f9fa;
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: transparent;
+            width: auto;
+            height: auto;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Styling cho Loader (Giữ nguyên) */
+        .loader {
+            --cloud-color: #4387f4;
+            --arrows-color: #80b1ff;
+            --time-animation: 1s;
+            transform: scale(1); /* You can change the size */
+        }
+
+            .loader #cloud {
+                width: 100px;
+                height: 100px;
+            }
+
+                .loader #cloud rect {
+                    fill: var(--cloud-color);
+                }
+
+                .loader #cloud g:nth-child(3) {
+                    transform-origin: 50% 72.8938%;
+                    fill: var(--arrows-color);
+                    filter: drop-shadow(0 0 8px black);
+                    animation: rotation var(--time-animation) linear infinite;
+                }
+
+            .loader #shapes g g circle {
+                animation: cloud calc(var(--time-animation) * 2) linear infinite;
+            }
+
+                .loader #shapes g g circle:nth-child(2) {
+                    animation-delay: calc((var(--time-animation) * 2) / -3);
+                }
+
+                .loader #shapes g g circle:nth-child(3) {
+                    animation-delay: calc((var(--time-animation) * 2) / -1.5);
+                }
+
+            .loader svg #lines g line {
+                stroke-width: 5;
+                transform-origin: 50% 50%;
+                rotate: -65deg;
+                animation: lines calc(var(--time-animation) / 1.33) linear infinite;
+            }
+
+        @@keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(180deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @@keyframes lines {
+            0% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(8px);
+            }
+        }
+
+        @@keyframes cloud {
+            0% {
+                cx: 20;
+                cy: 60;
+                r: 15;
+            }
+
+            50% {
+                cx: 50;
+                cy: 45;
+                r: 20;
+            }
+
+            100% {
+                cx: 80;
+                cy: 60;
+                r: 15;
+            }
+        }
+
+        /* Styling cho Bảng (Giữ nguyên) */
+        .table-container {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 15px;
+            color: #333;
+            margin: 0;
+        }
+
+            .table thead {
+                background: linear-gradient(90deg, #007bff, #00b4d8);
+                color: #fff;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-weight: 600;
+            }
+
+                .table thead th {
+                    padding: 14px 16px;
+                    border: none;
+                }
+
+            .table tbody tr {
+                transition: background-color 0.25s ease, transform 0.1s ease;
+            }
+
+                .table tbody tr:hover {
+                    background-color: rgba(0, 123, 255, 0.08);
+                    transform: scale(1.005);
+                }
+
+            .table tbody td {
+                padding: 12px 14px;
+                vertical-align: middle;
+                border-top: 1px solid #e9ecef;
+            }
+
+                .table tbody td:first-child {
+                    font-weight: 500;
+                    color: #007bff;
+                }
+
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table td .btn {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+
+                .table td .btn i {
+                    margin-right: 4px;
+                }
+
+        /* Hiệu ứng badge trạng thái */
+        .badge {
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        /* Responsive - bảng cuộn ngang nếu màn hình nhỏ */
+        @@media (max-width: 768px) {
+            .table-container {
+                overflow-x: auto;
+                box-shadow: none;
+            }
+        }
+    </style>
 </head>
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Lớp Năng Khiếu</h2>
@@ -26,8 +214,8 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto shadow-lg rounded-lg">
-        <table class="table table-striped table-hover align-middle mb-0 bg-white rounded-lg text-center">
+    <div class="table-container mt-4">
+        <table class="table table-striped table-hover text-center align-middle">
             <thead class="bg-primary text-white">
                 <tr>
                     <th>Mã Lớp</th>
@@ -39,11 +227,77 @@
             </thead>
             <tbody id="lnkTableBody">
                 <tr>
-                    <td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td>
+                    <div id="data-loading-indicator" class="loader-overlay hidden">
+                        <div class="loader">
+                            <svg id="cloud" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                                <defs>
+                                    <filter id="roundness">
+                                        <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"></feGaussianBlur>
+                                        <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix>
+                                    </filter>
+                                    <mask id="shapes">
+                                        <g fill="white">
+                                            <polygon points="50 37.5 80 75 20 75 50 37.5"></polygon>
+                                            <circle cx="20" cy="60" r="15"></circle>
+                                            <circle cx="80" cy="60" r="15"></circle>
+                                            <g>
+                                                <circle cx="20" cy="60" r="15"></circle>
+                                                <circle cx="20" cy="60" r="15"></circle>
+                                                <circle cx="20" cy="60" r="15"></circle>
+                                            </g>
+                                        </g>
+                                    </mask>
+                                    <mask id="clipping" clipPathUnits="userSpaceOnUse">
+                                        <g id="lines" filter="url(#roundness)">
+                                            <g mask="url(#shapes)" stroke="white">
+                                                <line x1="-50" y1="-40" x2="150" y2="-40"></line>
+                                                <line x1="-50" y1="-31" x2="150" y2="-31"></line>
+                                                <line x1="-50" y1="-22" x2="150" y2="-22"></line>
+                                                <line x1="-50" y1="-13" x2="150" y2="-13"></line>
+                                                <line x1="-50" y1="-4" x2="150" y2="-4"></line>
+                                                <line x1="-50" y1="5" x2="150" y2="5"></line>
+                                                <line x1="-50" y1="14" x2="150" y2="14"></line>
+                                                <line x1="-50" y1="23" x2="150" y2="23"></line>
+                                                <line x1="-50" y1="32" x2="150" y2="32"></line>
+                                                <line x1="-50" y1="41" x2="150" y2="41"></line>
+                                                <line x1="-50" y1="50" x2="150" y2="50"></line>
+                                                <line x1="-50" y1="59" x2="150" y2="59"></line>
+                                                <line x1="-50" y1="68" x2="150" y2="68"></line>
+                                                <line x1="-50" y1="77" x2="150" y2="77"></line>
+                                                <line x1="-50" y1="86" x2="150" y2="86"></line>
+                                                <line x1="-50" y1="95" x2="150" y2="95"></line>
+                                                <line x1="-50" y1="104" x2="150" y2="104"></line>
+                                                <line x1="-50" y1="113" x2="150" y2="113"></line>
+                                                <line x1="-50" y1="122" x2="150" y2="122"></line>
+                                                <line x1="-50" y1="131" x2="150" y2="131"></line>
+                                                <line x1="-50" y1="140" x2="150" y2="140"></line>
+                                            </g>
+                                        </g>
+                                    </mask>
+                                </defs>
+                                <rect x="0"
+                                      y="0"
+                                      width="100"
+                                      height="100"
+                                      rx="0"
+                                      ry="0"
+                                      mask="url(#clipping)"></rect>
+                                <g>
+                                    <path d="M33.52,68.12 C35.02,62.8 39.03,58.52 44.24,56.69 C49.26,54.93 54.68,55.61 59.04,58.4 C59.04,58.4 56.24,60.53 56.24,60.53 C55.45,61.13 55.68,62.37 56.63,62.64 C56.63,62.64 67.21,65.66 67.21,65.66 C67.98,65.88 68.75,65.3 68.74,64.5 C68.74,64.5 68.68,53.5 68.68,53.5 C68.67,52.51 67.54,51.95 66.75,52.55 C66.75,52.55 64.04,54.61 64.04,54.61 C57.88,49.79 49.73,48.4 42.25,51.03 C35.2,53.51 29.78,59.29 27.74,66.49 C27.29,68.08 28.22,69.74 29.81,70.19 C30.09,70.27 30.36,70.31 30.63,70.31 C31.94,70.31 33.14,69.44 33.52,68.12Z"></path>
+                                    <path d="M69.95,74.85 C68.35,74.4 66.7,75.32 66.25,76.92 C64.74,82.24 60.73,86.51 55.52,88.35 C50.51,90.11 45.09,89.43 40.73,86.63 C40.73,86.63 43.53,84.51 43.53,84.51 C44.31,83.91 44.08,82.67 43.13,82.4 C43.13,82.4 32.55,79.38 32.55,79.38 C31.78,79.16 31.02,79.74 31.02,80.54 C31.02,80.54 31.09,91.54 31.09,91.54 C31.09,92.53 32.22,93.09 33.01,92.49 C33.01,92.49 35.72,90.43 35.72,90.43 C39.81,93.63 44.77,95.32 49.84,95.32 C52.41,95.32 55,94.89 57.51,94.01 C64.56,91.53 69.99,85.75 72.02,78.55 C72.47,76.95 71.54,75.3 69.95,74.85Z"></path>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <nav aria-label="Phân trang Lớp Năng Khiếu" class="mt-4">
+        <ul class="pagination justify-content-center" id="pagination-controls">
+        </ul>
+    </nav>
 </div>
 
 <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
@@ -158,7 +412,15 @@
     <script>
         const apiUrl = "http://localhost:5057/api/LopNangKhieu";
         const tbody = document.getElementById("lnkTableBody");
+        const loader = document.getElementById("data-loading-indicator");
+        const paginationControls = document.getElementById("pagination-controls"); // 🆕 Element phân trang
+
         let lnkData = []; // Biến lưu toàn bộ dữ liệu Lớp Năng Khiếu đã tải
+
+        // 🆕 Biến phân trang
+        const rowsPerPage = 7;
+        let currentPage = 1;
+        let currentFilteredData = []; // Dữ liệu hiện tại đang được phân trang/tìm kiếm
 
         // Hàm định dạng tiền tệ Việt Nam
         const formatter = new Intl.NumberFormat('vi-VN', {
@@ -172,15 +434,36 @@
             return lnkData.find(lnk => lnk.maLop === maLop);
         }
 
-        // 🟡 Hàm hiển thị dữ liệu ra bảng
-        function renderLnks(dataToRender) {
-            if (!Array.isArray(dataToRender) || dataToRender.length === 0) {
+        // 🟢 Hàm hiển thị/ẩn loader
+        function showLoader() {
+            loader.classList.remove('hidden');
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>`;
+        }
+
+        function hideLoader() {
+            loader.classList.add('hidden');
+        }
+
+
+        // 🟡 Hàm hiển thị dữ liệu ra bảng (ĐÃ CẬP NHẬT PHÂN TRANG)
+        function renderLnks(dataToRender, page = 1) {
+            currentPage = page;
+            currentFilteredData = dataToRender; // Lưu trữ dữ liệu đang được phân trang
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+
+            // Lấy dữ liệu cho trang hiện tại
+            const paginatedData = dataToRender.slice(startIndex, endIndex);
+
+            if (!Array.isArray(paginatedData) || paginatedData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Không tìm thấy Lớp Năng Khiếu nào.</td></tr>`;
+                paginationControls.innerHTML = ''; // Ẩn phân trang nếu không có dữ liệu
                 return;
             }
 
             tbody.innerHTML = "";
-            dataToRender.forEach(lnk => {
+            paginatedData.forEach(lnk => {
                 const maLop = lnk.maLop ?? 'N/A';
                 // Sử dụng moment.js để định dạng ngày
                 const ngayMo = lnk.ngayMo ? moment(lnk.ngayMo).format('DD/MM/YYYY') : 'N/A';
@@ -201,11 +484,58 @@
                             </tr>
                         `;
             });
+
+            setupPagination(dataToRender); // Cập nhật các nút phân trang
         }
+
+        // 🆕 Hàm tạo các nút phân trang
+        function setupPagination(data) {
+            paginationControls.innerHTML = '';
+            const pageCount = Math.ceil(data.length / rowsPerPage);
+
+            if (pageCount <= 1) return; // Không cần phân trang nếu chỉ có 1 trang
+
+            // Nút 'Trang trước'
+            const prevDisabled = currentPage === 1 ? 'disabled' : '';
+            paginationControls.innerHTML += `
+                        <li class="page-item ${prevDisabled}">
+                            <a class="page-link" href="#" onclick="changePage(event, ${currentPage - 1})">Trước</a>
+                        </li>
+                    `;
+
+            // Các nút số trang
+            for (let i = 1; i <= pageCount; i++) {
+                const active = i === currentPage ? 'active' : '';
+                paginationControls.innerHTML += `
+                            <li class="page-item ${active}">
+                                <a class="page-link" href="#" onclick="changePage(event, ${i})">${i}</a>
+                            </li>
+                        `;
+            }
+
+            // Nút 'Trang sau'
+            const nextDisabled = currentPage === pageCount ? 'disabled' : '';
+            paginationControls.innerHTML += `
+                        <li class="page-item ${nextDisabled}">
+                            <a class="page-link" href="#" onclick="changePage(event, ${currentPage + 1})">Sau</a>
+                        </li>
+                    `;
+        }
+
+        // 🆕 Hàm chuyển trang
+        function changePage(event, newPage) {
+            event.preventDefault();
+            const pageCount = Math.ceil(currentFilteredData.length / rowsPerPage);
+
+            if (newPage >= 1 && newPage <= pageCount) {
+                renderLnks(currentFilteredData, newPage);
+            }
+        }
+
 
         // 🟢 Hàm load danh sách Lớp Năng Khiếu từ API (Tải toàn bộ dữ liệu)
         async function loadLnks() {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>`;
+            showLoader();
             lnkData = [];
 
             try {
@@ -219,40 +549,46 @@
                 const data = await response.json();
                 lnkData = data; // Lưu toàn bộ dữ liệu vào lnkData
 
-                renderLnks(lnkData); // Hiển thị toàn bộ dữ liệu
+                // Lần đầu tải, hiển thị trang 1
+                renderLnks(lnkData, 1);
 
             } catch (err) {
                 console.error("Lỗi khi tải Lớp Năng Khiếu:", err);
                 tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center">
-                                            <strong>❌ Lỗi tải dữ liệu.</strong> Vui lòng kiểm tra API: ${err.message}
-                                        </td></tr>`;
+                                                <strong>❌ Lỗi tải dữ liệu.</strong> Vui lòng kiểm tra API: ${err.message}
+                                            </td></tr>`;
+                paginationControls.innerHTML = '';
+            } finally {
+                hideLoader();
             }
         }
 
         function handleSearch() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
 
+            let filteredLnks;
             if (!searchTerm) {
-                renderLnks(lnkData);
-                return;
+                filteredLnks = lnkData;
+            } else {
+                // Lọc dữ liệu trong bộ nhớ (lnkData)
+                filteredLnks = lnkData.filter(lnk => {
+                    const maLop = lnk.maLop ? lnk.maLop.toLowerCase() : '';
+                    const maGv = lnk.maGv ? lnk.maGv.toLowerCase() : '';
+                    const hocPhiStr = lnk.hocPhi ? String(lnk.hocPhi) : '';
+
+                    // Lọc theo maLop HOẶC maGv HOẶC hocPhi
+                    return maLop.includes(searchTerm) ||
+                        maGv.includes(searchTerm) ||
+                        hocPhiStr.includes(searchTerm);
+                });
             }
 
-            // Lọc dữ liệu trong bộ nhớ (lnkData)
-            const filteredLnks = lnkData.filter(lnk => {
-                const maLop = lnk.maLop ? lnk.maLop.toLowerCase() : '';
-                const maGv = lnk.maGv ? lnk.maGv.toLowerCase() : '';
-                const hocPhiStr = lnk.hocPhi ? String(lnk.hocPhi) : ''; 
-
-                // Lọc theo maLop HOẶC maGv HOẶC hocPhi
-                return maLop.includes(searchTerm) ||
-                    maGv.includes(searchTerm) ||
-                    hocPhiStr.includes(searchTerm);
-            });
-
-            renderLnks(filteredLnks);
+            // Luôn hiển thị kết quả tìm kiếm/toàn bộ dữ liệu bắt đầu từ trang 1
+            renderLnks(filteredLnks, 1);
         }
 
         // ================================== XỬ LÝ HIỂN THỊ MODAL ==================================
+
         function showDetailModal(maLop) {
             const lnk = findLnkByMaLop(maLop);
             if (!lnk) return alert("Không tìm thấy dữ liệu Lớp này.");
@@ -260,6 +596,7 @@
             document.getElementById('detailMaLop').textContent = lnk.maLop;
             document.getElementById('detailNgayMo').textContent = lnk.ngayMo ? moment(lnk.ngayMo).format('DD/MM/YYYY') : 'N/A';
             document.getElementById('detailMaGv').textContent = lnk.maGv ?? 'N/A';
+            // Không cần format lại học phí vì đã format trong hàm render, ở đây chỉ lấy giá trị số để format lại
             document.getElementById('detailHocPhi').textContent = lnk.hocPhi ? formatter.format(lnk.hocPhi) : '0';
             document.getElementById('detailRowGuid').textContent = lnk.rowguid ?? 'N/A';
             new bootstrap.Modal(document.getElementById('modalDetail')).show();
@@ -284,9 +621,30 @@
             if (!lnk) return alert("Không tìm thấy dữ liệu Lớp này.");
 
             document.getElementById('deleteMaLopText').textContent = lnk.maLop;
-            document.getElementById('deleteMaLopCode').textContent = lnk.maLop; 
+            document.getElementById('deleteMaLopCode').textContent = lnk.maLop;
             document.getElementById('deleteTargetMaLop').value = lnk.maLop;
             new bootstrap.Modal(document.getElementById('modalDelete')).show();
+        }
+
+        // 🆕 Hàm hỗ trợ tải lại dữ liệu và chuyển đến trang cụ thể
+        async function loadLnksAfterAction(targetPage) {
+            showLoader();
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+
+                lnkData = await response.json();
+
+                // Đảm bảo trang đích không vượt quá số trang tối đa
+                const maxPage = Math.ceil(lnkData.length / rowsPerPage);
+                const finalPage = Math.min(targetPage, maxPage) || 1;
+
+                renderLnks(lnkData, finalPage);
+            } catch (err) {
+                console.error("Lỗi khi tải lại Lớp:", err);
+            } finally {
+                hideLoader();
+            }
         }
 
         // ============================= 🚀 CHỨC NĂNG API (POST, PUT, DELETE) 🚀 =================
@@ -301,7 +659,9 @@
                 return alert('Vui lòng nhập đầy đủ và chính xác thông tin Lớp Năng Khiếu.');
             }
 
+            // Chuyển đổi ngày tháng sang định dạng ISO cho API
             const newLnk = { ngayMo: moment(ngayMo).toISOString(), maGv, hocPhi };
+            showLoader();
 
             try {
                 const response = await fetch(apiUrl, {
@@ -319,11 +679,14 @@
                 document.getElementById('formAdd').reset();
 
                 alert('Thêm Lớp Năng Khiếu thành công! (Mã lớp được tạo tự động)');
-                loadLnks();
+                // Sau khi thêm, tải lại và chuyển về trang 1
+                await loadLnksAfterAction(1);
 
             } catch (err) {
                 console.error("Lỗi khi thêm Lớp:", err);
                 alert(`Thêm thất bại. Lỗi: ${err.message}`);
+            } finally {
+                hideLoader();
             }
         }
 
@@ -339,8 +702,9 @@
                 return alert('Vui lòng nhập đầy đủ và chính xác thông tin Lớp Năng Khiếu.');
             }
 
-            const updatedLnkBody = { ngayMo: moment(ngayMo).toISOString(), maGv, hocPhi };
+            const updatedLnkBody = { ngayMo: moment(ngayMo).toISOString(), maGv, hocPhi, rowguid };
             const editUrl = `${apiUrl}/${maLop}`;
+            showLoader();
 
             try {
                 const response = await fetch(editUrl, {
@@ -352,7 +716,8 @@
                 if (response.status === 204 || response.ok) {
                     bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
                     alert(`Chỉnh sửa Lớp ${maLop} thành công!`);
-                    loadLnks();
+                    // Giữ nguyên trang hiện tại sau khi chỉnh sửa
+                    await loadLnksAfterAction(currentPage);
                 } else {
                     const errorText = await response.text();
                     throw new Error(`Lỗi khi Chỉnh sửa Lớp: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
@@ -361,6 +726,8 @@
             } catch (err) {
                 console.error("Lỗi khi chỉnh sửa Lớp:", err);
                 alert(`Chỉnh sửa thất bại. Lỗi: ${err.message}`);
+            } finally {
+                hideLoader();
             }
         }
 
@@ -368,6 +735,7 @@
         async function handleDeleteConfirm() {
             const maLop = document.getElementById('deleteTargetMaLop').value;
             const deleteUrl = `${apiUrl}/${maLop}`;
+            showLoader();
 
             try {
                 const response = await fetch(deleteUrl, {
@@ -377,7 +745,8 @@
                 if (response.status === 204 || response.ok) {
                     bootstrap.Modal.getInstance(document.getElementById('modalDelete')).hide();
                     alert(`Xóa Lớp ${maLop} thành công!`);
-                    loadLnks();
+                    // Sau khi xóa, tải lại và kiểm tra lại trang hiện tại (có thể phải lùi về trang trước)
+                    await loadLnksAfterAction(currentPage);
                 } else {
                     const errorText = await response.text();
                     throw new Error(`Lỗi khi Xóa Lớp: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
@@ -386,6 +755,8 @@
             } catch (err) {
                 console.error("Lỗi khi xóa Lớp:", err);
                 alert(`Xóa thất bại. Lỗi: ${err.message}`);
+            } finally {
+                hideLoader();
             }
         }
 
@@ -396,6 +767,13 @@
                 elementToFocus.focus();
             });
         }
+
+        // Cần gán các hàm này vào window để các thuộc tính `onclick` trong HTML được render có thể gọi
+        window.changePage = changePage;
+        window.showDetailModal = showDetailModal;
+        window.showEditModal = showEditModal;
+        window.showDeleteModal = showDeleteModal;
+
 
         document.addEventListener("DOMContentLoaded", () => {
             loadLnks(); // Tải dữ liệu ban đầu
@@ -408,11 +786,8 @@
             // Gắn sự kiện cho Tìm kiếm
             document.getElementById('btnSearch').addEventListener('click', handleSearch);
             document.getElementById('searchInput').addEventListener('keyup', (event) => {
-                if (event.key === 'Enter') {
-                    handleSearch();
-                } else {
-                    handleSearch();
-                }
+                // Cập nhật kết quả trực tiếp khi gõ
+                handleSearch();
             });
 
             const btnAddLNK = document.getElementById('btnAddLNK');
