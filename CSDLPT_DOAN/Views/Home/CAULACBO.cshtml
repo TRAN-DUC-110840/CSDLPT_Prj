@@ -1,6 +1,6 @@
 ﻿@{
     // Thiết lập tiêu đề trang
-    ViewData["Title"] = "Quản lý Giảng Viên";
+    ViewData["Title"] = "Quản lý Câu Lạc Bộ";
     Layout = "_Layout"; // Sử dụng layout mặc định của dự án
 }
 <head>
@@ -8,35 +8,34 @@
 
 </head>
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Giảng Viên</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Câu Lạc Bộ</h2>
 
     <div class="row mb-4 align-items-center">
         <div class="col-md-6 order-md-1">
             <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Nhập Mã GV hoặc Tên GV để tìm kiếm...">
+                <input type="text" id="searchInput" class="form-control" placeholder="Nhập tên CLB hoặc Mã CLB để tìm kiếm...">
                 <button class="btn btn-outline-primary" type="button" id="btnSearch">
                     <i class="bi bi-search"></i> Tìm kiếm
                 </button>
             </div>
         </div>
         <div class="col-md-6 text-md-end text-start order-md-2 mt-3 mt-md-0">
-            <button class="btn btn-primary" id="btnAddGV" data-bs-toggle="modal" data-bs-target="#modalAdd">
-                <i class="bi bi-plus-circle"></i> Thêm Giảng Viên
+            <button class="btn btn-primary" id="btnAddClub" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                <i class="bi bi-plus-circle"></i> Thêm Câu Lạc Bộ
             </button>
         </div>
     </div>
-
     <div class="overflow-x-auto shadow-lg rounded-lg">
         <table class="table table-striped table-hover align-middle mb-0 bg-white rounded-lg text-center">
             <thead class="bg-primary text-white">
                 <tr>
-                    <th>Mã GV</th>
-                    <th>Họ Tên GV</th>
-                    <th>Mã CLB</th>
+                    <th>ID</th>
+                    <th>Tên CLB</th>
+                    <th>Khoa</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
-            <tbody id="gvTableBody">
+            <tbody id="clbTableBody">
                 <tr>
                     <td colspan="4" class="text-center text-muted">Đang tải dữ liệu...</td>
                 </tr>
@@ -49,18 +48,22 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalAddLabel">Thêm Giảng Viên</h5>
+                <h5 class="modal-title" id="modalAddLabel">Thêm Câu Lạc Bộ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
                 <form id="formAdd">
-                    <div class="mb-3">
-                        <label class="form-label">Họ Tên GV</label>
-                        <input type="text" class="form-control" id="addHoTenGv" placeholder="Nhập Họ Tên Giảng Viên" required>
+                    <div class="mb-3 d-none">
+                        <label class="form-label">Mã CLB</label>
+                        <input type="text" class="form-control" id="addMaClb" placeholder="Nhập mã CLB (Ví dụ: CLB09)">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Mã CLB</label>
-                        <input type="text" class="form-control" id="addMaClb" placeholder="Nhập Mã CLB (Ví dụ: CLB01)" required>
+                        <label class="form-label">Tên CLB</label>
+                        <input type="text" class="form-control" id="addTenClb" placeholder="Nhập tên CLB" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã Khoa</label>
+                        <input type="text" class="form-control" id="addTenKhoa" placeholder="Nhập mã Khoa (Ví dụ: K1)" required>
                     </div>
                 </form>
             </div>
@@ -76,13 +79,13 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="modalDetailLabel">Chi Tiết Giảng Viên</h5>
+                <h5 class="modal-title" id="modalDetailLabel">Chi Tiết Câu Lạc Bộ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Mã GV:</strong> <span id="detailMaGv"></span></p>
-                <p><strong>Họ Tên GV:</strong> <span id="detailHoTenGv"></span></p>
                 <p><strong>Mã CLB:</strong> <span id="detailMaClb"></span></p>
+                <p><strong>Tên CLB:</strong> <span id="detailTenClb"></span></p>
+                <p><strong>Khoa:</strong> <span id="detailTenKhoa"></span></p>
                 <p><strong>Row Guid:</strong> <span id="detailRowGuid"></span></p>
             </div>
             <div class="modal-footer">
@@ -96,23 +99,23 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title" id="modalEditLabel">Chỉnh Sửa Giảng Viên</h5>
+                <h5 class="modal-title" id="modalEditLabel">Chỉnh Sửa Câu Lạc Bộ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
                 <form id="formEdit">
                     <input type="hidden" id="editRowGuid">
                     <div class="mb-3">
-                        <label class="form-label">Mã GV</label>
-                        <input type="text" class="form-control" id="editMaGv" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Họ Tên GV</label>
-                        <input type="text" class="form-control" id="editHoTenGv" required>
-                    </div>
-                    <div class="mb-3">
                         <label class="form-label">Mã CLB</label>
-                        <input type="text" class="form-control" id="editMaClb" required>
+                        <input type="text" class="form-control" id="editMaClb" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên CLB</label>
+                        <input type="text" class="form-control" id="editTenClb" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã Khoa</label>
+                        <input type="text" class="form-control" id="editTenKhoa" required>
                     </div>
                 </form>
             </div>
@@ -132,8 +135,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa Giảng Viên <strong id="deleteHoTenGv"></strong> (<span id="deleteMaGv"></span>) không?</p>
-                <input type="hidden" id="deleteTargetMaGv">
+                <p>Bạn có chắc chắn muốn xóa Câu Lạc Bộ <strong id="deleteTenClb"></strong> (<span id="deleteMaClb"></span>) không?</p>
+                <input type="hidden" id="deleteTargetMaClb">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -146,45 +149,46 @@
 
 @section Scripts {
     <script>
-        const apiUrl = "http://localhost:5057/api/giangVien";
-        const tbody = document.getElementById("gvTableBody");
-        let gvData = []; 
+        const apiUrl = "http://localhost:5057/api/CauLacBo";
+        const tbody = document.getElementById("clbTableBody");
+        let clubData = []; 
 
-        // 🟢 Hàm tìm GV theo Mã GV
-        function findGvByMaGv(maGv) {
-            return gvData.find(gv => gv.maGv === maGv);
+        // 🟢 Hàm tìm CLB theo Mã CLB
+        function findClubByMaClb(maClb) {
+            return clubData.find(clb => clb.maClb === maClb);
         }
 
-        function renderGvs(dataToRender) {
+        // 🟡 Hàm hiển thị dữ liệu ra bảng (sử dụng dữ liệu đã lọc hoặc toàn bộ)
+        function renderClubs(dataToRender) {
             if (!Array.isArray(dataToRender) || dataToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Không tìm thấy Giảng Viên nào.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Không tìm thấy Câu Lạc Bộ nào.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = "";
-            dataToRender.forEach(gv => {
-                const maGV = gv.maGv ?? 'N/A';
-                const hoTenGV = gv.hoTenGv ?? 'Họ Tên bị thiếu';
-                const maCLB = gv.maClb ?? 'Chưa gán';
+            dataToRender.forEach(clb => {
+                const maCLB = clb.maClb ?? 'N/A';
+                const tenCLB = clb.tenClb ?? 'Tên CLB bị thiếu';
+                const tenKhoa = clb.tenKhoa ?? 'Chưa gán';
 
                 tbody.innerHTML += `
-                            <tr>
-                                <td>${maGV}</td>
-                                <td>${hoTenGV}</td>
-                                <td>${maCLB}</td>
-                                <td>
-                                    <button class="btn btn-info btn-sm text-white" title="Xem chi tiết" onclick="showDetailModal('${gv.maGv}')"><i class="bi bi-card-list"></i></button>
-                                    <button class="btn btn-warning btn-sm text-white" title="Chỉnh sửa" onclick="showEditModal('${gv.maGv}')"><i class="bi bi-pencil-square"></i></button>
-                                    <button class="btn btn-danger btn-sm" title="Xóa" onclick="showDeleteModal('${gv.maGv}')"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                        `;
+                                <tr>
+                                    <td>${maCLB}</td>
+                                    <td>${tenCLB}</td>
+                                    <td>${tenKhoa}</td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm text-white" title="Xem chi tiết" onclick="showDetailModal('${clb.maClb}')"><i class="bi bi-card-list"></i></button>
+                                        <button class="btn btn-warning btn-sm text-white" title="Chỉnh sửa" onclick="showEditModal('${clb.maClb}')"><i class="bi bi-pencil-square"></i></button>
+                                        <button class="btn btn-danger btn-sm" title="Xóa" onclick="showDeleteModal('${clb.maClb}')"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            `;
             });
         }
 
-        async function loadGvs() {
+        async function loadClubs() {
             tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Đang tải dữ liệu...</td></tr>`;
-            gvData = [];
+            clubData = []; 
 
             try {
                 const response = await fetch(apiUrl);
@@ -195,12 +199,12 @@
                 }
 
                 const data = await response.json();
-                gvData = data; 
+                clubData = data;
 
-                renderGvs(gvData);
+                renderClubs(clubData); 
 
             } catch (err) {
-                console.error("Lỗi khi tải Giảng Viên:", err);
+                console.error("Lỗi khi tải CLB:", err);
                 tbody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">
                                             <strong>❌ Lỗi tải dữ liệu.</strong> Vui lòng kiểm tra API: ${err.message}
                                         </td></tr>`;
@@ -208,152 +212,150 @@
         }
 
         function handleSearch() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             if (!searchTerm) {
-                renderGvs(gvData);
+                renderClubs(clubData); 
                 return;
             }
 
-            const filteredGvs = gvData.filter(gv => {
-                const maGV = gv.maGv ? gv.maGv.toLowerCase() : '';
-                const hoTenGV = gv.hoTenGv ? gv.hoTenGv.toLowerCase() : '';
-
-                return maGV.includes(searchTerm) || hoTenGV.includes(searchTerm);
+            const filteredClubs = clubData.filter(clb => {
+                const maCLB = clb.maClb ? clb.maClb.toLowerCase() : '';
+                const tenCLB = clb.tenClb ? clb.tenClb.toLowerCase() : '';
+                return maCLB.includes(searchTerm) || tenCLB.includes(searchTerm);
             });
 
-            renderGvs(filteredGvs);
+            renderClubs(filteredClubs); 
         }
 
-        function showDetailModal(maGv) {
-            const gv = findGvByMaGv(maGv);
-            if (!gv) return alert("Không tìm thấy dữ liệu Giảng Viên này.");
-
-            document.getElementById('detailMaGv').textContent = gv.maGv;
-            document.getElementById('detailHoTenGv').textContent = gv.hoTenGv;
-            document.getElementById('detailMaClb').textContent = gv.maClb ?? 'N/A';
-            document.getElementById('detailRowGuid').textContent = gv.rowguid ?? 'N/A';
+       function showDetailModal(maClb) {
+            const clb = findClubByMaClb(maClb);
+            if (!clb) return alert("Không tìm thấy dữ liệu CLB này.");
+            document.getElementById('detailMaClb').textContent = clb.maClb;
+            document.getElementById('detailTenClb').textContent = clb.tenClb;
+            document.getElementById('detailTenKhoa').textContent = clb.tenKhoa ?? 'N/A';
+            document.getElementById('detailRowGuid').textContent = clb.rowguid ?? 'N/A';
             new bootstrap.Modal(document.getElementById('modalDetail')).show();
         }
 
-        function showEditModal(maGv) {
-            const gv = findGvByMaGv(maGv);
-            if (!gv) return alert("Không tìm thấy dữ liệu Giảng Viên này.");
-
-            document.getElementById('editMaGv').value = gv.maGv;
-            document.getElementById('editHoTenGv').value = gv.hoTenGv;
-            document.getElementById('editMaClb').value = gv.maClb ?? '';
-            document.getElementById('editRowGuid').value = gv.rowguid;
+        function showEditModal(maClb) {
+            const clb = findClubByMaClb(maClb);
+            if (!clb) return alert("Không tìm thấy dữ liệu CLB này.");
+            document.getElementById('editMaClb').value = clb.maClb;
+            document.getElementById('editTenClb').value = clb.tenClb;
+            document.getElementById('editTenKhoa').value = clb.tenKhoa ?? '';
+            document.getElementById('editRowGuid').value = clb.rowguid;
             new bootstrap.Modal(document.getElementById('modalEdit')).show();
         }
 
-        function showDeleteModal(maGv) {
-            const gv = findGvByMaGv(maGv);
-            if (!gv) return alert("Không tìm thấy dữ liệu Giảng Viên này.");
-
-            document.getElementById('deleteHoTenGv').textContent = gv.hoTenGv;
-            document.getElementById('deleteMaGv').textContent = gv.maGv;
-            document.getElementById('deleteTargetMaGv').value = gv.maGv;
+        function showDeleteModal(maClb) {
+            const clb = findClubByMaClb(maClb);
+            if (!clb) return alert("Không tìm thấy dữ liệu CLB này.");
+            document.getElementById('deleteTenClb').textContent = clb.tenClb;
+            document.getElementById('deleteMaClb').textContent = clb.maClb;
+            document.getElementById('deleteTargetMaClb').value = clb.maClb;
             new bootstrap.Modal(document.getElementById('modalDelete')).show();
         }
 
-       // ============================= 🚀 CHỨC NĂNG API (POST, PUT, DELETE) 🚀 =================
+        // ============================= 🚀 CHỨC NĂNG API (POST, PUT, DELETE) 🚀 =================
 
-        // 1. CHỨC NĂNG THÊM MỚI (POST) - ĐÃ CẬP NHẬT
         async function handleAddSubmit() {
-            const hoTenGv = document.getElementById('addHoTenGv').value;
-            const maClb = document.getElementById('addMaClb').value;
+            const tenClb = document.getElementById('addTenClb').value;
+            const tenKhoa = document.getElementById('addTenKhoa').value;
 
-            if (!hoTenGv || !maClb) {
-                return alert('Vui lòng nhập đầy đủ Họ Tên GV và Mã CLB.');
+            if (!tenClb || !tenKhoa) {
+                return alert('Vui lòng nhập đầy đủ Tên CLB và Mã Khoa.');
             }
 
-            const newGv = { hoTenGv, maClb };
+            const newClb = { tenClb, tenKhoa };
 
             try {
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newGv)
+                    body: JSON.stringify(newClb)
                 });
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`Lỗi khi Thêm GV: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                    throw new Error(`Lỗi khi Thêm CLB: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
                 }
 
                 bootstrap.Modal.getInstance(document.getElementById('modalAdd')).hide();
                 document.getElementById('formAdd').reset();
 
-                alert('Thêm Giảng Viên thành công! (ID được tạo tự động)');
-                loadGvs();
+                alert('Thêm Câu Lạc Bộ thành công! (ID được tạo tự động)');
+                loadClubs(); // Tải lại toàn bộ danh sách
 
             } catch (err) {
-                console.error("Lỗi khi thêm GV:", err);
+                console.error("Lỗi khi thêm CLB:", err);
                 alert(`Thêm thất bại. Lỗi: ${err.message}`);
             }
         }
 
         // 2. CHỨC NĂNG CHỈNH SỬA (PUT)
         async function handleEditSubmit() {
-            const maGv = document.getElementById('editMaGv').value;
-            const hoTenGv = document.getElementById('editHoTenGv').value;
             const maClb = document.getElementById('editMaClb').value;
+            const tenClb = document.getElementById('editTenClb').value;
+            const tenKhoa = document.getElementById('editTenKhoa').value;
             const rowguid = document.getElementById('editRowGuid').value;
 
-            if (!hoTenGv || !maClb) {
-                return alert('Vui lòng nhập đầy đủ Họ Tên GV và Mã CLB.');
+            if (!tenClb || !tenKhoa) {
+                return alert('Vui lòng nhập đầy đủ Tên CLB và Mã Khoa.');
             }
 
-            const updatedGvBody = { hoTenGv, maClb };
-            const editUrl = `${apiUrl}/${maGv}`;
+            const updatedClb = { maClb, tenClb, tenKhoa, rowguid };
+            const editUrl = `${apiUrl}/${maClb}`;
 
             try {
                 const response = await fetch(editUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedGvBody)
+                    body: JSON.stringify(updatedClb)
                 });
 
-                if (response.status === 204 || response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
-                    alert(`Chỉnh sửa Giảng Viên ${maGv} thành công!`);
-                    loadGvs();
-                } else {
+                if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`Lỗi khi Chỉnh sửa GV: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                    throw new Error(`Lỗi khi Chỉnh sửa CLB: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
                 }
 
+                bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
+
+                alert(`Chỉnh sửa CLB ${maClb} thành công!`);
+                loadClubs();
+
             } catch (err) {
-                console.error("Lỗi khi chỉnh sửa GV:", err);
+                console.error("Lỗi khi chỉnh sửa CLB:", err);
                 alert(`Chỉnh sửa thất bại. Lỗi: ${err.message}`);
             }
         }
 
         // 3. CHỨC NĂNG XÓA (DELETE)
         async function handleDeleteConfirm() {
-            const maGv = document.getElementById('deleteTargetMaGv').value;
-            const deleteUrl = `${apiUrl}/${maGv}`;
+            const maClb = document.getElementById('deleteTargetMaClb').value;
+            const deleteUrl = `${apiUrl}/${maClb}`;
 
             try {
                 const response = await fetch(deleteUrl, {
                     method: 'DELETE'
                 });
 
-                if (response.status === 204 || response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalDelete')).hide();
-                    alert(`Xóa Giảng Viên ${maGv} thành công!`);
-                    loadGvs();
-                } else {
+                if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`Lỗi khi Xóa GV: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                    throw new Error(`Lỗi khi Xóa CLB: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
                 }
 
+                bootstrap.Modal.getInstance(document.getElementById('modalDelete')).hide();
+
+                alert(`Xóa CLB ${maClb} thành công!`);
+                loadClubs();
+
             } catch (err) {
-                console.error("Lỗi khi xóa GV:", err);
+                console.error("Lỗi khi xóa CLB:", err);
                 alert(`Xóa thất bại. Lỗi: ${err.message}`);
             }
         }
+
 
         function fixModalA11y(modalId, elementToFocus) {
             const modalElement = document.getElementById(modalId);
@@ -363,7 +365,7 @@
         }
 
        document.addEventListener("DOMContentLoaded", () => {
-            loadGvs(); 
+            loadClubs();
 
             // Gắn sự kiện cho các nút Submit
             document.getElementById('btnSubmitAdd').addEventListener('click', handleAddSubmit);
@@ -376,15 +378,15 @@
                 if (event.key === 'Enter') {
                     handleSearch();
                 } else {
-                    // Cập nhật kết quả trực tiếp khi gõ
                     handleSearch();
                 }
             });
-            const btnAddGV = document.getElementById('btnAddGV');
-            fixModalA11y('modalAdd', btnAddGV);
-            fixModalA11y('modalDetail', btnAddGV);
-            fixModalA11y('modalEdit', btnAddGV);
-            fixModalA11y('modalDelete', btnAddGV);
+
+            const btnAddClub = document.getElementById('btnAddClub');
+            fixModalA11y('modalAdd', btnAddClub);
+            fixModalA11y('modalDetail', btnAddClub);
+            fixModalA11y('modalEdit', btnAddClub);
+            fixModalA11y('modalDelete', btnAddClub);
         });
     </script>
 }

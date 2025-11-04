@@ -1,0 +1,467 @@
+﻿@{
+    // Thiết lập tiêu đề trang
+    ViewData["Title"] = "Quản lý Biên Lai";
+    Layout = "_Layout"; // Sử dụng layout mặc định của dự án
+}
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<div class="container mx-auto px-4 py-6">
+    <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Biên Lai</h2>
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6 order-md-1">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm theo Số BL, Mã SV, Mã Lớp, Tháng/Năm...">
+                <button class="btn btn-outline-primary" type="button" id="btnSearch">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6 text-md-end text-start order-md-2 mt-3 mt-md-0">
+            <button class="btn btn-primary" id="btnAddBL" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                <i class="bi bi-plus-circle"></i> Thêm Biên Lai
+            </button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto shadow-lg rounded-lg">
+        <table class="table table-striped table-hover align-middle mb-0 bg-white rounded-lg text-center">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th>Số BL</th>
+                    <th>Thời Gian</th>
+                    <th>Mã Lớp</th>
+                    <th>Mã SV</th>
+                    <th>Số Tiền</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="blTableBody">
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Đang tải dữ liệu...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalAddLabel">Thêm Biên Lai</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAdd">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Tháng</label>
+                            <input type="number" class="form-control" id="addThang" placeholder="Tháng (1-12)" min="1" max="12" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Năm</label>
+                            <input type="number" class="form-control" id="addNam" placeholder="Năm (Ví dụ: 2025)" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã Lớp</label>
+                        <input type="text" class="form-control" id="addMaLop" placeholder="Nhập Mã Lớp (Ví dụ: LOP01)" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã SV</label>
+                        <input type="text" class="form-control" id="addMaSv" placeholder="Nhập Mã Sinh Viên (Ví dụ: SV007)" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số Tiền</label>
+                        <input type="number" class="form-control" id="addSoTien" placeholder="Nhập số tiền (VND)" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnSubmitAdd" class="btn btn-primary">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetail" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="modalDetailLabel">Chi Tiết Biên Lai</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Số BL:</strong> <span id="detailSoBienLai"></span></p>
+                <p><strong>Thời Gian:</strong> <span id="detailThoiGian"></span></p>
+                <p><strong>Mã Lớp:</strong> <span id="detailMaLop"></span></p>
+                <p><strong>Mã SV:</strong> <span id="detailMaSv"></span></p>
+                <p><strong>Số Tiền:</strong> <span id="detailSoTien"></span> VND</p>
+                <p><strong>Row Guid:</strong> <span id="detailRowGuid"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="modalEditLabel">Chỉnh Sửa Biên Lai</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEdit">
+                    <input type="hidden" id="editRowGuid">
+                    <input type="hidden" id="editMaLopKey"> <input type="hidden" id="editMaSvKey">   <div class="mb-3">
+                        <label class="form-label">Số BL</label>
+                        <input type="text" class="form-control" id="editSoBienLai" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Tháng</label>
+                            <input type="number" class="form-control" id="editThang" min="1" max="12" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Năm</label>
+                            <input type="number" class="form-control" id="editNam" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã Lớp</label>
+                        <input type="text" class="form-control" id="editMaLop" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã SV</label>
+                        <input type="text" class="form-control" id="editMaSv" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số Tiền</label>
+                        <input type="number" class="form-control" id="editSoTien" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnSubmitEdit" class="btn btn-warning text-white">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalDeleteLabel">Xác Nhận Xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa Biên Lai của Mã Lớp <strong id="deleteMaLopText"></strong> và Mã SV <strong id="deleteMaSvText"></strong> không?</p>
+                <input type="hidden" id="deleteTargetMaLop">
+                <input type="hidden" id="deleteTargetMaSv">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnConfirmDelete" class="btn btn-danger">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        const apiUrl = "http://localhost:5057/api/BienLai";
+        const tbody = document.getElementById("blTableBody");
+        let blData = [];
+
+        // Hàm định dạng tiền tệ Việt Nam
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0
+        });
+
+        function findBlByKeys(maLop, maSv) {
+            return blData.find(bl => bl.maLop === maLop && bl.maSv === maSv);
+        }
+
+        function renderBls(dataToRender) {
+            if (!Array.isArray(dataToRender) || dataToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Không tìm thấy Biên Lai nào.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            dataToRender.forEach(bl => {
+                const soBienLai = bl.soBienLai ?? 'N/A';
+                const thoiGian = `${bl.thang}/${bl.nam}` ?? 'N/A';
+                const maLop = bl.maLop ?? 'N/A';
+                const maSv = bl.maSv ?? 'N/A';
+                const soTien = bl.soTien ? formatter.format(bl.soTien) : '0 VND';
+
+                // Truyền Khóa Tổng Hợp vào onclick để định danh
+                const keys = `'${maLop}', '${maSv}'`;
+
+                tbody.innerHTML += `
+                            <tr>
+                                <td>${soBienLai}</td>
+                                <td>${thoiGian}</td>
+                                <td>${maLop}</td>
+                                <td>${maSv}</td>
+                                <td>${soTien}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm text-white" title="Xem chi tiết" onclick="showDetailModal(${keys})"><i class="bi bi-card-list"></i></button>
+                                    <button class="btn btn-warning btn-sm text-white" title="Chỉnh sửa" onclick="showEditModal(${keys})"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn btn-danger btn-sm" title="Xóa" onclick="showDeleteModal(${keys})"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+            });
+        }
+
+        // 🟢 Hàm load danh sách Biên Lai từ API (Tải toàn bộ dữ liệu)
+        async function loadBls() {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu...</td></tr>`;
+            blData = [];
+
+            try {
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi HTTP: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+                const data = await response.json();
+                blData = data;
+
+                renderBls(blData);
+
+            } catch (err) {
+                console.error("Lỗi khi tải Biên Lai:", err);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-danger text-center">
+                                            <strong>❌ Lỗi tải dữ liệu.</strong> Vui lòng kiểm tra API: ${err.message}
+                                        </td></tr>`;
+            }
+        }
+
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                renderBls(blData);
+                return;
+            }
+
+            const filteredBls = blData.filter(bl => {
+                const soBlStr = bl.soBienLai ? String(bl.soBienLai) : '';
+                const maLop = bl.maLop ? bl.maLop.toLowerCase() : '';
+                const maSv = bl.maSv ? bl.maSv.toLowerCase() : '';
+                const thoiGian = `${bl.thang}/${bl.nam}`;
+
+                return soBlStr.includes(searchTerm) ||
+                    maLop.includes(searchTerm) ||
+                    maSv.includes(searchTerm) ||
+                    thoiGian.includes(searchTerm);
+            });
+
+            renderBls(filteredBls); 
+        }
+
+        function showDetailModal(maLop, maSv) {
+            const bl = findBlByKeys(maLop, maSv);
+            if (!bl) return alert("Không tìm thấy Biên Lai này.");
+
+            document.getElementById('detailSoBienLai').textContent = bl.soBienLai;
+            document.getElementById('detailThoiGian').textContent = `${bl.thang}/${bl.nam}`;
+            document.getElementById('detailMaLop').textContent = bl.maLop ?? 'N/A';
+            document.getElementById('detailMaSv').textContent = bl.maSv ?? 'N/A';
+            document.getElementById('detailSoTien').textContent = bl.soTien ? formatter.format(bl.soTien) : '0';
+            document.getElementById('detailRowGuid').textContent = bl.rowguid ?? 'N/A';
+            new bootstrap.Modal(document.getElementById('modalDetail')).show();
+        }
+
+        function showEditModal(maLop, maSv) {
+            const bl = findBlByKeys(maLop, maSv);
+            if (!bl) return alert("Không tìm thấy Biên Lai này.");
+
+            document.getElementById('editSoBienLai').value = bl.soBienLai;
+            document.getElementById('editThang').value = bl.thang;
+            document.getElementById('editNam').value = bl.nam;
+            document.getElementById('editMaLop').value = bl.maLop ?? '';
+            document.getElementById('editMaSv').value = bl.maSv ?? '';
+            document.getElementById('editSoTien').value = bl.soTien ?? '';
+            document.getElementById('editRowGuid').value = bl.rowguid;
+
+            // Lưu Khóa Tổng Hợp vào hidden fields để dùng khi submit
+            document.getElementById('editMaLopKey').value = maLop;
+            document.getElementById('editMaSvKey').value = maSv;
+
+            new bootstrap.Modal(document.getElementById('modalEdit')).show();
+        }
+
+        function showDeleteModal(maLop, maSv) {
+            const bl = findBlByKeys(maLop, maSv);
+            if (!bl) return alert("Không tìm thấy Biên Lai này.");
+
+            document.getElementById('deleteMaLopText').textContent = maLop;
+            document.getElementById('deleteMaSvText').textContent = maSv;
+
+            // Lưu Khóa Tổng Hợp vào hidden fields để dùng khi submit
+            document.getElementById('deleteTargetMaLop').value = maLop;
+            document.getElementById('deleteTargetMaSv').value = maSv;
+
+            new bootstrap.Modal(document.getElementById('modalDelete')).show();
+        }
+
+        // ============================= 🚀 CHỨC NĂNG API (POST, PUT, DELETE) 🚀 =================
+
+        async function handleAddSubmit() {
+            const thang = parseInt(document.getElementById('addThang').value);
+            const nam = parseInt(document.getElementById('addNam').value);
+            const maLop = document.getElementById('addMaLop').value;
+            const maSv = document.getElementById('addMaSv').value;
+            const soTien = parseFloat(document.getElementById('addSoTien').value);
+
+            if (isNaN(thang) || isNaN(nam) || !maLop || !maSv || isNaN(soTien)) {
+                return alert('Vui lòng nhập đầy đủ và chính xác thông tin Biên Lai.');
+            }
+
+            const newBl = { thang, nam, maLop, maSv, soTien };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newBl)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi khi Thêm Biên Lai: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('modalAdd')).hide();
+                document.getElementById('formAdd').reset();
+
+                alert('Thêm Biên Lai thành công! (Số BL được tạo tự động)');
+                loadBls();
+
+            } catch (err) {
+                console.error("Lỗi khi thêm Biên Lai:", err);
+                alert(`Thêm thất bại. Lỗi: ${err.message}`);
+            }
+        }
+
+        // 2. CHỨC NĂNG CHỈNH SỬA (PUT)
+        async function handleEditSubmit() {
+            const maLop = document.getElementById('editMaLopKey').value;
+            const maSv = document.getElementById('editMaSvKey').value;
+
+            const soBienLai = parseInt(document.getElementById('editSoBienLai').value); // Gửi lại ID cũ
+            const thang = parseInt(document.getElementById('editThang').value);
+            const nam = parseInt(document.getElementById('editNam').value);
+            const soTien = parseFloat(document.getElementById('editSoTien').value);
+            const rowguid = document.getElementById('editRowGuid').value;
+
+            if (isNaN(thang) || isNaN(nam) || isNaN(soTien)) {
+                return alert('Vui lòng nhập đầy đủ và chính xác thông tin Biên Lai.');
+            }
+
+           const updatedBlBody = { soBienLai, thang, nam, soTien };
+
+            const editUrl = `${apiUrl}/${maLop}/${maSv}`;
+
+            try {
+                const response = await fetch(editUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedBlBody)
+                });
+
+                if (response.status === 204 || response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
+                    alert(`Chỉnh sửa Biên Lai thành công!`);
+                    loadBls();
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi khi Chỉnh sửa Biên Lai: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+            } catch (err) {
+                console.error("Lỗi khi chỉnh sửa Biên Lai:", err);
+                alert(`Chỉnh sửa thất bại. Lỗi: ${err.message}`);
+            }
+        }
+
+        // 3. CHỨC NĂNG XÓA (DELETE) 
+        async function handleDeleteConfirm() {
+            const maLop = document.getElementById('deleteTargetMaLop').value;
+            const maSv = document.getElementById('deleteTargetMaSv').value;
+
+            // URL sử dụng Khóa Tổng Hợp
+            const deleteUrl = `${apiUrl}/${maLop}/${maSv}`;
+
+            try {
+                const response = await fetch(deleteUrl, {
+                    method: 'DELETE'
+                });
+
+                if (response.status === 204 || response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalDelete')).hide();
+                    alert(`Xóa Biên Lai của Lớp ${maLop} và SV ${maSv} thành công!`);
+                    loadBls();
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi khi Xóa Biên Lai: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+            } catch (err) {
+                console.error("Lỗi khi xóa Biên Lai:", err);
+                alert(`Xóa thất bại. Lỗi: ${err.message}`);
+            }
+        }
+
+
+        function fixModalA11y(modalId, elementToFocus) {
+            const modalElement = document.getElementById(modalId);
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                elementToFocus.focus();
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadBls(); // Tải dữ liệu ban đầu
+
+            // Gắn sự kiện cho các nút Submit
+            document.getElementById('btnSubmitAdd').addEventListener('click', handleAddSubmit);
+            document.getElementById('btnSubmitEdit').addEventListener('click', handleEditSubmit);
+            document.getElementById('btnConfirmDelete').addEventListener('click', handleDeleteConfirm);
+
+            // Gắn sự kiện cho Tìm kiếm
+            document.getElementById('btnSearch').addEventListener('click', handleSearch);
+            document.getElementById('searchInput').addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    handleSearch();
+                } else {
+                    handleSearch();
+                }
+            });
+
+            // Áp dụng fix A11y cho tất cả modal
+            const btnAddBL = document.getElementById('btnAddBL');
+            fixModalA11y('modalAdd', btnAddBL);
+            fixModalA11y('modalDetail', btnAddBL);
+            fixModalA11y('modalEdit', btnAddBL);
+            fixModalA11y('modalDelete', btnAddBL);
+        });
+    </script>
+}

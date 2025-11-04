@@ -1,0 +1,425 @@
+﻿@{
+    // Thiết lập tiêu đề trang
+    ViewData["Title"] = "Quản lý Lớp Năng Khiếu";
+    Layout = "_Layout"; // Sử dụng layout mặc định của dự án
+}
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+</head>
+<div class="container mx-auto px-4 py-6">
+    <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Lớp Năng Khiếu</h2>
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6 order-md-1">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Nhập Mã Lớp, Mã GV hoặc Học phí để tìm kiếm...">
+                <button class="btn btn-outline-primary" type="button" id="btnSearch">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6 text-md-end text-start order-md-2 mt-3 mt-md-0">
+            <button class="btn btn-primary" id="btnAddLNK" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                <i class="bi bi-plus-circle"></i> Thêm Lớp Năng Khiếu
+            </button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto shadow-lg rounded-lg">
+        <table class="table table-striped table-hover align-middle mb-0 bg-white rounded-lg text-center">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th>Mã Lớp</th>
+                    <th>Ngày Mở</th>
+                    <th>Mã GV</th>
+                    <th>Học Phí</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="lnkTableBody">
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalAddLabel">Thêm Lớp Năng Khiếu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAdd">
+                    <div class="mb-3">
+                        <label class="form-label">Ngày Mở</label>
+                        <input type="date" class="form-control" id="addNgayMo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã GV</label>
+                        <input type="text" class="form-control" id="addMaGv" placeholder="Nhập Mã Giảng Viên (Ví dụ: GV01)" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Học Phí</label>
+                        <input type="number" class="form-control" id="addHocPhi" placeholder="Nhập Học Phí (VND)" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnSubmitAdd" class="btn btn-primary">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetail" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="modalDetailLabel">Chi Tiết Lớp Năng Khiếu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Mã Lớp:</strong> <span id="detailMaLop"></span></p>
+                <p><strong>Ngày Mở:</strong> <span id="detailNgayMo"></span></p>
+                <p><strong>Mã GV:</strong> <span id="detailMaGv"></span></p>
+                <p><strong>Học Phí:</strong> <span id="detailHocPhi"></span> VND</p>
+                <p><strong>Row Guid:</strong> <span id="detailRowGuid"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="modalEditLabel">Chỉnh Sửa Lớp Năng Khiếu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEdit">
+                    <input type="hidden" id="editRowGuid">
+                    <div class="mb-3">
+                        <label class="form-label">Mã Lớp</label>
+                        <input type="text" class="form-control" id="editMaLop" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ngày Mở</label>
+                        <input type="date" class="form-control" id="editNgayMo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã GV</label>
+                        <input type="text" class="form-control" id="editMaGv" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Học Phí</label>
+                        <input type="number" class="form-control" id="editHocPhi" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnSubmitEdit" class="btn btn-warning text-white">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalDeleteLabel">Xác Nhận Xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa Lớp Năng Khiếu <strong id="deleteMaLopText"></strong> (<span id="deleteMaLopCode"></span>) không?</p>
+                <input type="hidden" id="deleteTargetMaLop">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnConfirmDelete" class="btn btn-danger">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        const apiUrl = "http://localhost:5057/api/LopNangKhieu";
+        const tbody = document.getElementById("lnkTableBody");
+        let lnkData = []; // Biến lưu toàn bộ dữ liệu Lớp Năng Khiếu đã tải
+
+        // Hàm định dạng tiền tệ Việt Nam
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0
+        });
+
+        // 🟢 Hàm tìm Lớp theo Mã Lớp
+        function findLnkByMaLop(maLop) {
+            return lnkData.find(lnk => lnk.maLop === maLop);
+        }
+
+        // 🟡 Hàm hiển thị dữ liệu ra bảng
+        function renderLnks(dataToRender) {
+            if (!Array.isArray(dataToRender) || dataToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Không tìm thấy Lớp Năng Khiếu nào.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            dataToRender.forEach(lnk => {
+                const maLop = lnk.maLop ?? 'N/A';
+                // Sử dụng moment.js để định dạng ngày
+                const ngayMo = lnk.ngayMo ? moment(lnk.ngayMo).format('DD/MM/YYYY') : 'N/A';
+                const maGV = lnk.maGv ?? 'N/A';
+                const hocPhi = lnk.hocPhi ? formatter.format(lnk.hocPhi) : '0 VND';
+
+                tbody.innerHTML += `
+                            <tr>
+                                <td>${maLop}</td>
+                                <td>${ngayMo}</td>
+                                <td>${maGV}</td>
+                                <td>${hocPhi}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm text-white" title="Xem chi tiết" onclick="showDetailModal('${lnk.maLop}')"><i class="bi bi-card-list"></i></button>
+                                    <button class="btn btn-warning btn-sm text-white" title="Chỉnh sửa" onclick="showEditModal('${lnk.maLop}')"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn btn-danger btn-sm" title="Xóa" onclick="showDeleteModal('${lnk.maLop}')"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+            });
+        }
+
+        // 🟢 Hàm load danh sách Lớp Năng Khiếu từ API (Tải toàn bộ dữ liệu)
+        async function loadLnks() {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>`;
+            lnkData = [];
+
+            try {
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi HTTP: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+                const data = await response.json();
+                lnkData = data; // Lưu toàn bộ dữ liệu vào lnkData
+
+                renderLnks(lnkData); // Hiển thị toàn bộ dữ liệu
+
+            } catch (err) {
+                console.error("Lỗi khi tải Lớp Năng Khiếu:", err);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center">
+                                            <strong>❌ Lỗi tải dữ liệu.</strong> Vui lòng kiểm tra API: ${err.message}
+                                        </td></tr>`;
+            }
+        }
+
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                renderLnks(lnkData);
+                return;
+            }
+
+            // Lọc dữ liệu trong bộ nhớ (lnkData)
+            const filteredLnks = lnkData.filter(lnk => {
+                const maLop = lnk.maLop ? lnk.maLop.toLowerCase() : '';
+                const maGv = lnk.maGv ? lnk.maGv.toLowerCase() : '';
+                const hocPhiStr = lnk.hocPhi ? String(lnk.hocPhi) : ''; 
+
+                // Lọc theo maLop HOẶC maGv HOẶC hocPhi
+                return maLop.includes(searchTerm) ||
+                    maGv.includes(searchTerm) ||
+                    hocPhiStr.includes(searchTerm);
+            });
+
+            renderLnks(filteredLnks);
+        }
+
+        // ================================== XỬ LÝ HIỂN THỊ MODAL ==================================
+        function showDetailModal(maLop) {
+            const lnk = findLnkByMaLop(maLop);
+            if (!lnk) return alert("Không tìm thấy dữ liệu Lớp này.");
+
+            document.getElementById('detailMaLop').textContent = lnk.maLop;
+            document.getElementById('detailNgayMo').textContent = lnk.ngayMo ? moment(lnk.ngayMo).format('DD/MM/YYYY') : 'N/A';
+            document.getElementById('detailMaGv').textContent = lnk.maGv ?? 'N/A';
+            document.getElementById('detailHocPhi').textContent = lnk.hocPhi ? formatter.format(lnk.hocPhi) : '0';
+            document.getElementById('detailRowGuid').textContent = lnk.rowguid ?? 'N/A';
+            new bootstrap.Modal(document.getElementById('modalDetail')).show();
+        }
+
+        function showEditModal(maLop) {
+            const lnk = findLnkByMaLop(maLop);
+            if (!lnk) return alert("Không tìm thấy dữ liệu Lớp này.");
+
+            const formatDate = (isoDate) => isoDate ? moment(isoDate).format('YYYY-MM-DD') : '';
+
+            document.getElementById('editMaLop').value = lnk.maLop;
+            document.getElementById('editNgayMo').value = formatDate(lnk.ngayMo);
+            document.getElementById('editMaGv').value = lnk.maGv ?? '';
+            document.getElementById('editHocPhi').value = lnk.hocPhi ?? '';
+            document.getElementById('editRowGuid').value = lnk.rowguid;
+            new bootstrap.Modal(document.getElementById('modalEdit')).show();
+        }
+
+        function showDeleteModal(maLop) {
+            const lnk = findLnkByMaLop(maLop);
+            if (!lnk) return alert("Không tìm thấy dữ liệu Lớp này.");
+
+            document.getElementById('deleteMaLopText').textContent = lnk.maLop;
+            document.getElementById('deleteMaLopCode').textContent = lnk.maLop; 
+            document.getElementById('deleteTargetMaLop').value = lnk.maLop;
+            new bootstrap.Modal(document.getElementById('modalDelete')).show();
+        }
+
+        // ============================= 🚀 CHỨC NĂNG API (POST, PUT, DELETE) 🚀 =================
+
+        // 1. CHỨC NĂNG THÊM MỚI (POST)
+        async function handleAddSubmit() {
+            const ngayMo = document.getElementById('addNgayMo').value;
+            const maGv = document.getElementById('addMaGv').value;
+            const hocPhi = parseFloat(document.getElementById('addHocPhi').value);
+
+            if (!ngayMo || !maGv || isNaN(hocPhi)) {
+                return alert('Vui lòng nhập đầy đủ và chính xác thông tin Lớp Năng Khiếu.');
+            }
+
+            const newLnk = { ngayMo: moment(ngayMo).toISOString(), maGv, hocPhi };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newLnk)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi khi Thêm Lớp: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('modalAdd')).hide();
+                document.getElementById('formAdd').reset();
+
+                alert('Thêm Lớp Năng Khiếu thành công! (Mã lớp được tạo tự động)');
+                loadLnks();
+
+            } catch (err) {
+                console.error("Lỗi khi thêm Lớp:", err);
+                alert(`Thêm thất bại. Lỗi: ${err.message}`);
+            }
+        }
+
+        // 2. CHỨC NĂNG CHỈNH SỬA (PUT)
+        async function handleEditSubmit() {
+            const maLop = document.getElementById('editMaLop').value;
+            const ngayMo = document.getElementById('editNgayMo').value;
+            const maGv = document.getElementById('editMaGv').value;
+            const hocPhi = parseFloat(document.getElementById('editHocPhi').value);
+            const rowguid = document.getElementById('editRowGuid').value;
+
+            if (!maLop || !ngayMo || !maGv || isNaN(hocPhi)) {
+                return alert('Vui lòng nhập đầy đủ và chính xác thông tin Lớp Năng Khiếu.');
+            }
+
+            const updatedLnkBody = { ngayMo: moment(ngayMo).toISOString(), maGv, hocPhi };
+            const editUrl = `${apiUrl}/${maLop}`;
+
+            try {
+                const response = await fetch(editUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedLnkBody)
+                });
+
+                if (response.status === 204 || response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
+                    alert(`Chỉnh sửa Lớp ${maLop} thành công!`);
+                    loadLnks();
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi khi Chỉnh sửa Lớp: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+            } catch (err) {
+                console.error("Lỗi khi chỉnh sửa Lớp:", err);
+                alert(`Chỉnh sửa thất bại. Lỗi: ${err.message}`);
+            }
+        }
+
+        // 3. CHỨC NĂNG XÓA (DELETE)
+        async function handleDeleteConfirm() {
+            const maLop = document.getElementById('deleteTargetMaLop').value;
+            const deleteUrl = `${apiUrl}/${maLop}`;
+
+            try {
+                const response = await fetch(deleteUrl, {
+                    method: 'DELETE'
+                });
+
+                if (response.status === 204 || response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalDelete')).hide();
+                    alert(`Xóa Lớp ${maLop} thành công!`);
+                    loadLnks();
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi khi Xóa Lớp: ${response.status}. Chi tiết: ${errorText.substring(0, 100)}`);
+                }
+
+            } catch (err) {
+                console.error("Lỗi khi xóa Lớp:", err);
+                alert(`Xóa thất bại. Lỗi: ${err.message}`);
+            }
+        }
+
+
+        function fixModalA11y(modalId, elementToFocus) {
+            const modalElement = document.getElementById(modalId);
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                elementToFocus.focus();
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadLnks(); // Tải dữ liệu ban đầu
+
+            // Gắn sự kiện cho các nút Submit
+            document.getElementById('btnSubmitAdd').addEventListener('click', handleAddSubmit);
+            document.getElementById('btnSubmitEdit').addEventListener('click', handleEditSubmit);
+            document.getElementById('btnConfirmDelete').addEventListener('click', handleDeleteConfirm);
+
+            // Gắn sự kiện cho Tìm kiếm
+            document.getElementById('btnSearch').addEventListener('click', handleSearch);
+            document.getElementById('searchInput').addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    handleSearch();
+                } else {
+                    handleSearch();
+                }
+            });
+
+            const btnAddLNK = document.getElementById('btnAddLNK');
+            fixModalA11y('modalAdd', btnAddLNK);
+            fixModalA11y('modalDetail', btnAddLNK);
+            fixModalA11y('modalEdit', btnAddLNK);
+            fixModalA11y('modalDelete', btnAddLNK);
+        });
+    </script>
+}

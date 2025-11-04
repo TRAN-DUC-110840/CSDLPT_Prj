@@ -27,6 +27,22 @@ public class HomeController : Controller
     {
         return View();
     }
+    public IActionResult CAULACBO()
+    {
+        return View();
+    }
+    public IActionResult SINHVIEn()
+    {
+        return View();
+    }
+    public IActionResult LOPNANGKHIEU()
+    {
+        return View();
+    }
+    public IActionResult BIENLAI()
+    {
+        return View();
+    }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
