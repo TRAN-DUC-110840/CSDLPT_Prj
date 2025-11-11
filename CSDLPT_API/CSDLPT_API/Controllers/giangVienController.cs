@@ -3,11 +3,13 @@ using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
 using CSDLPT_API.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CSDLPT_API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class giangVienController : ControllerBase
 {
     private readonly MyDbContext myDbContext;

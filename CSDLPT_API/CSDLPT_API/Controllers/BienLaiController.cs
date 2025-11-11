@@ -1,12 +1,14 @@
 using CSDLPT_API.Context;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CSDLPT_API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class BienLaiController : ControllerBase
 {
 	private readonly MyDbContext _db;

@@ -2,12 +2,14 @@ using CSDLPT_API.Context;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
 using CSDLPT_API.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CSDLPT_API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class LopNangKhieuController : ControllerBase
 {
 	private readonly MyDbContext _db;

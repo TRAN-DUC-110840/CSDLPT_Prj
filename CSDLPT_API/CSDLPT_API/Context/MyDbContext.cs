@@ -25,6 +25,7 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<LopNangKhieu> LopNangKhieus { get; set; }
 
     public virtual DbSet<Sinhvien> Sinhviens { get; set; }
+	public virtual DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BienLai>(entity =>
@@ -200,6 +201,11 @@ public partial class MyDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("sinhvien_maclb_foreign");
         });
+
+		modelBuilder.Entity<User>(entity =>
+		{
+			entity.HasIndex(e => e.Username).IsUnique();
+		});
 
         OnModelCreatingPartial(modelBuilder);
     }
