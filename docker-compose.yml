@@ -1,0 +1,30 @@
+services:
+  api:
+    build: ./CSDLPT_API
+    ports:
+      - "8080:8080"
+    networks:
+      - csdlpt_network
+
+  web:
+    build: ./CSDLPT_DOAN
+    ports:
+      - "4000:4000"
+    networks:
+      - csdlpt_network
+
+  db:
+    image: mcr.microsoft.com/mssql/server:latest
+    ports:
+        - "1433:1433"
+    environment:
+        ACCEPT_EULA: Y
+        SA_PASSWORD : anhduc9A@5
+    volumes:
+        - db_data_csdlpt:/var/opt/mssql
+    networks:
+        - csdlpt_network
+volumes:
+  db_data_csdlpt:
+networks:
+  csdlpt_network:

@@ -197,8 +197,8 @@
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Biên Lai</h2>
 
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6 order-md-1">
+    <div class="row mb-4 gy-3 align-items-center">
+        <div class="col-lg-4 order-lg-1 order-2">
             <div class="input-group">
                 <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm theo Số BL, Mã SV, Mã Lớp, Tháng/Năm...">
                 <button class="btn btn-outline-primary" type="button" id="btnSearch">
@@ -206,7 +206,23 @@
                 </button>
             </div>
         </div>
-        <div class="col-md-6 text-md-end text-start order-md-2 mt-3 mt-md-0">
+        <div class="col-lg-4 order-lg-2 order-3">
+            <div class="d-flex flex-column gap-2 server-selector">
+                <small class="text-muted text-uppercase fw-semibold">Chọn server</small>
+                <div class="btn-group" role="group" aria-label="Chọn server">
+                    <input type="radio" class="btn-check" name="serverOption" id="btnServerOriginal" value="OriginalServer" autocomplete="off" checked>
+                    <label class="btn btn-outline-secondary" for="btnServerOriginal">Server gốc</label>
+
+                    <input type="radio" class="btn-check" name="serverOption" id="btnServerK1" value="ServerK1" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="btnServerK1">Server K1</label>
+
+                    <input type="radio" class="btn-check" name="serverOption" id="btnServerK2" value="ServerK2" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="btnServerK2">Server K2</label>
+                </div>
+                <div class="text-muted small">Đang dùng: <span id="serverSelectionStatus" class="fw-semibold text-primary">Server gốc</span></div>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end text-start order-lg-3 order-1 mt-3 mt-lg-0">
             <button class="btn btn-primary" id="btnAddBL" data-bs-toggle="modal" data-bs-target="#modalAdd">
                 <i class="bi bi-plus-circle"></i> Thêm Biên Lai
             </button>
@@ -433,17 +449,50 @@
 
 @section Scripts {
     <script>
-        const apiUrl = "http://localhost:5057/api/BienLai";
+        const apiBaseUrl = "http://localhost:5057/api/BienLai";
+        const serverDisplayNames = {
+            OriginalServer: "Server gốc",
+            ServerK1: "Server K1",
+            ServerK2: "Server K2"
+        };
         const tbody = document.getElementById("blTableBody");
         const loader = document.getElementById("data-loading-indicator");
         const paginationControls = document.getElementById("pagination-controls"); // 🆕 Element phân trang
 
+        let currentServer = 'OriginalServer';
         let blData = [];
+        let serverSelectionStatusEl = null;
 
         // 🆕 Biến phân trang
         const rowsPerPage = 7;
         let currentPage = 1;
         let currentFilteredData = []; // Dữ liệu hiện tại đang được phân trang/tìm kiếm
+
+        function withServerParam(url) {
+            const separator = url.includes('?') ? '&' : '?';
+            return `${url}${separator}serverEnum=${currentServer}`;
+        }
+
+        function updateServerStatusLabel() {
+            if (serverSelectionStatusEl) {
+                serverSelectionStatusEl.textContent = serverDisplayNames[currentServer] ?? currentServer;
+            }
+        }
+
+        async function reloadDataForServer() {
+            showLoader();
+            try {
+                await loadBls({ skipLoader: true });
+            } catch (err) {
+                console.error("Lỗi khi tải dữ liệu theo server:", err);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-danger text-center">
+                                                Không tải được dữ liệu cho ${serverDisplayNames[currentServer] ?? currentServer}.
+                                            </td></tr>`;
+                paginationControls.innerHTML = '';
+            } finally {
+                hideLoader();
+            }
+        }
 
         // Hàm định dạng tiền tệ Việt Nam
         const formatter = new Intl.NumberFormat('vi-VN', {
@@ -559,12 +608,15 @@
         }
 
         // 🟢 Hàm load danh sách Biên Lai từ API (Tải toàn bộ dữ liệu)
-        async function loadBls() {
-            showLoader();
+        async function loadBls(options = {}) {
+            const { skipLoader = false } = options;
+            if (!skipLoader) {
+                showLoader();
+            }
             blData = [];
 
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(withServerParam(apiBaseUrl));
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -584,7 +636,9 @@
                                             </td></tr>`;
                 paginationControls.innerHTML = '';
             } finally {
-                hideLoader();
+                if (!skipLoader) {
+                    hideLoader();
+                }
             }
         }
 
@@ -592,7 +646,8 @@
         async function loadBlsAfterAction(targetPage) {
             showLoader();
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(withServerParam(apiBaseUrl));
+                const response = await fetch(withServerParam(apiBaseUrl));
                 if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
 
                 blData = await response.json();
@@ -697,7 +752,7 @@
             showLoader();
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch(withServerParam(apiBaseUrl), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newBl)
@@ -741,7 +796,7 @@
             // API PUT cần cả khóa chính composite (maLop, maSv) trên URL và dữ liệu cập nhật trong body
             const updatedBlBody = { soBienLai, thang, nam, soTien, rowguid };
 
-            const editUrl = `${apiUrl}/${maLop}/${maSv}`;
+            const editUrl = withServerParam(`${apiBaseUrl}/${maLop}/${maSv}`);
             showLoader();
 
             try {
@@ -775,7 +830,7 @@
             const maSv = document.getElementById('deleteTargetMaSv').value;
 
             // URL sử dụng Khóa Tổng Hợp
-            const deleteUrl = `${apiUrl}/${maLop}/${maSv}`;
+            const deleteUrl = withServerParam(`${apiBaseUrl}/${maLop}/${maSv}`);
             showLoader();
 
             try {
@@ -816,8 +871,23 @@
         window.showDeleteModal = showDeleteModal;
 
 
-        document.addEventListener("DOMContentLoaded", () => {
-            loadBls(); // Tải dữ liệu ban đầu
+        document.addEventListener("DOMContentLoaded", async () => {
+            serverSelectionStatusEl = document.getElementById('serverSelectionStatus');
+            updateServerStatusLabel();
+
+            const serverOptionInputs = document.querySelectorAll('input[name="serverOption"]');
+            serverOptionInputs.forEach(input => {
+                input.addEventListener('change', async (event) => {
+                    if (!event.target.checked) return;
+                    const selectedServer = event.target.value;
+                    if (selectedServer === currentServer) return;
+                    currentServer = selectedServer;
+                    updateServerStatusLabel();
+                    await reloadDataForServer();
+                });
+            });
+
+            await loadBls(); // Tải dữ liệu ban đầu
 
             // Gắn sự kiện cho các nút Submit
             document.getElementById('btnSubmitAdd').addEventListener('click', handleAddSubmit);

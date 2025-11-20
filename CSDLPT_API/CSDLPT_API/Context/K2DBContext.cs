@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Interfaces;
@@ -7,18 +7,26 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CSDLPT_API.Context;
 
-public partial class MyDbContext : DbContext , IDbContext
+public partial class K2DBContext : DbContext , IDbContext
 {
-    public MyDbContext()
+    public K2DBContext()
     {
     }
 
-    public MyDbContext(DbContextOptions<MyDbContext> options)
+    public K2DBContext(DbContextOptions<K2DBContext> options)
         : base(options)
     {
         
     }
-    
+
+    public virtual DbSet<BienLai> BienLais { get; set; }
+
+    public virtual DbSet<CauLacBo> CauLacBos { get; set; }
+
+    public virtual DbSet<GiangVien> GiangViens { get; set; }
+
+    public virtual DbSet<LopNangKhieu> LopNangKhieus { get; set; }
+
     public async Task SaveChangesAsync()
     {
         await base.SaveChangesAsync();
@@ -38,25 +46,6 @@ public partial class MyDbContext : DbContext , IDbContext
     {
         await  transaction.RollbackAsync();
     }
-
-    public async Task CommitTransactionAsync()
-    {
-        await base.Database.CommitTransactionAsync();
-    }
-
-    public async Task RollbackTransactionAsync()
-    {
-        await base.Database.RollbackTransactionAsync();
-    }
-
-    public virtual DbSet<BienLai> BienLais { get; set; }
-
-    public virtual DbSet<CauLacBo> CauLacBos { get; set; }
-
-    public virtual DbSet<GiangVien> GiangViens { get; set; }
-
-    public virtual DbSet<LopNangKhieu> LopNangKhieus { get; set; }
-
     public virtual DbSet<Sinhvien> Sinhviens { get; set; }
 	public virtual DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

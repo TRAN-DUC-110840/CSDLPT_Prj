@@ -1,6 +1,7 @@
 using CSDLPT_API.Context;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
+using CSDLPT_API.Enums;
 using CSDLPT_API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,30 +13,36 @@ namespace CSDLPT_API.Controllers;
 [Authorize]
 public class LopNangKhieuController : ControllerBase
 {
-	private readonly MyDbContext _db;
+	private readonly serverSwitcherHelper _serverSwitcherHelper;
 
-	public LopNangKhieuController(MyDbContext db)
+	public LopNangKhieuController(serverSwitcherHelper serverSwitcherHelper)
 	{
-		_db = db;
+		this._serverSwitcherHelper = serverSwitcherHelper;
 	}
 
 	[HttpGet]
-	public IActionResult GetAll()
+	public IActionResult GetAll(serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		return Ok(_db.LopNangKhieus.ToList());
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetById(string id)
+	public async Task<IActionResult> GetById(string id , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.LopNangKhieus.FindAsync(id);
 		if (item == null) return NotFound();
 		return Ok(item);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Create([FromBody] LopNangKhieuCreateDto dto)
+	public async Task<IActionResult> Create([FromBody] LopNangKhieuCreateDto dto , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var entity = new LopNangKhieu
 		{
 			MaLop = IdHelper.GenerateNextId(_db.LopNangKhieus.Select(x => x.MaLop), "LOP", 2),
@@ -49,8 +56,10 @@ public class LopNangKhieuController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> Update(string id, [FromBody] LopNangKhieuUpdateDto dto)
+	public async Task<IActionResult> Update(string id, [FromBody] LopNangKhieuUpdateDto dto , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.LopNangKhieus.FindAsync(id);
 		if (item == null) return NotFound();
 		item.NgayMo = dto.NgayMo;
@@ -61,8 +70,10 @@ public class LopNangKhieuController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> Delete(string id)
+	public async Task<IActionResult> Delete(string id , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.LopNangKhieus.FindAsync(id);
 		if (item == null) return NotFound();
 		_db.LopNangKhieus.Remove(item);

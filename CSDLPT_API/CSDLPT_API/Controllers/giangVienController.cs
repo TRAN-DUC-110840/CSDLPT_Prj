@@ -1,6 +1,7 @@
 using CSDLPT_API.Context;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
+using CSDLPT_API.Enums;
 using CSDLPT_API.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -12,36 +13,43 @@ namespace CSDLPT_API.Controllers;
 [Authorize]
 public class giangVienController : ControllerBase
 {
-    private readonly MyDbContext myDbContext;
+    private readonly serverSwitcherHelper _serverSwitcherHelper;
 
-    public giangVienController(MyDbContext myDbContext)
+    public giangVienController(serverSwitcherHelper serverSwitcherHelper)
     {
-        this.myDbContext = myDbContext;
+        this._serverSwitcherHelper = serverSwitcherHelper;
     }
 
 
 	[HttpGet]
-	public async Task<IActionResult> getAll()
+	public async Task<IActionResult> getAll(serverEnum serverEnum)
 	{
-		var list = await Task.FromResult(myDbContext.GiangViens.ToList());
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
+		var list = await Task.FromResult(_db.GiangViens.ToList());
 		return Ok(list);
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> getById(string id)
+	public async Task<IActionResult> getById(string id , serverEnum serverEnum)
 	{
-		var gv = await myDbContext.GiangViens.FindAsync(id);
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
+		var gv = await _db.GiangViens.FindAsync(id);
 		if (gv == null) return NotFound();
 		return Ok(gv);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> postGvData([FromBody] GiangVienCreateDto gvDto)
+	public async Task<IActionResult> postGvData([FromBody] GiangVienCreateDto gvDto , serverEnum serverEnum)
     {
-        var transaction = await myDbContext.Database.BeginTransactionAsync();
+	    var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
+        var transaction = await _db.BeginTransactionAsync();
+        
         try
 		{
-			var nextId = IdHelper.GenerateNextId(myDbContext.GiangViens.Select(x => x.MaGv), "GV", 3);
+			var nextId = IdHelper.GenerateNextId(_db.GiangViens.Select(x => x.MaGv), "GV", 3);
 			var gvObject = new GiangVien()
             {
 				HoTenGv = gvDto.HoTenGv,
@@ -49,8 +57,8 @@ public class giangVienController : ControllerBase
 				MaGv = nextId,
             };
 
-            await myDbContext.GiangViens.AddAsync(gvObject);
-            await myDbContext.SaveChangesAsync();
+            await _db.GiangViens.AddAsync(gvObject);
+            await _db.SaveChangesAsync();
             await transaction.CommitAsync();
 			return CreatedAtAction(nameof(getById), new { id = gvObject.MaGv }, gvObject);
         }
@@ -62,23 +70,27 @@ public class giangVienController : ControllerBase
     }
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> putGvData(string id, [FromBody] GiangVienUpdateDto gvDto)
+	public async Task<IActionResult> putGvData(string id, [FromBody] GiangVienUpdateDto gvDto , serverEnum serverEnum)
 	{
-		var gv = await myDbContext.GiangViens.FindAsync(id);
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
+		var gv = await _db.GiangViens.FindAsync(id);
 		if (gv == null) return NotFound();
 		gv.HoTenGv = gvDto.HoTenGv;
 		gv.MaClb = gvDto.MaClb;
-		await myDbContext.SaveChangesAsync();
+		await _db.SaveChangesAsync();
 		return Ok(gv);
 	}
 
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> deleteGv(string id)
+	public async Task<IActionResult> deleteGv(string id , serverEnum serverEnum)
 	{
-		var gv = await myDbContext.GiangViens.FindAsync(id);
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
+		var gv = await _db.GiangViens.FindAsync(id);
 		if (gv == null) return NotFound();
-		myDbContext.GiangViens.Remove(gv);
-		await myDbContext.SaveChangesAsync();
+		_db.GiangViens.Remove(gv);
+		await _db.SaveChangesAsync();
 		return NoContent();
 	}
 }

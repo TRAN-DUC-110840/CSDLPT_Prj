@@ -7,14 +7,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["CSDLPT_API.csproj", "CSDLPT_API/"]
-RUN dotnet restore "CSDLPT_API.csproj"
+COPY ["CSDLPT_API/CSDLPT_API.csproj", "CSDLPT_API/"]
+RUN dotnet restore "./CSDLPT_API/CSDLPT_API.csproj"
+
 COPY . .
+
 WORKDIR "/src/CSDLPT_API"
 RUN dotnet build "CSDLPT_API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
+WORKDIR "/src/CSDLPT_API" 
 RUN dotnet publish "CSDLPT_API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final

@@ -192,8 +192,8 @@
     <div class="container mx-auto px-4 py-6">
         <h2 class="text-2xl font-bold mb-6 text-center text-primary">Quản lý Câu Lạc Bộ</h2>
 
-        <div class="row mb-4 align-items-center">
-            <div class="col-md-6 order-md-1">
+        <div class="row mb-4 gy-3 align-items-center">
+            <div class="col-lg-4 order-lg-1 order-2">
                 <div class="input-group">
                     <input type="text" id="searchInput" class="form-control" placeholder="Nhập tên CLB hoặc Mã CLB để tìm kiếm...">
                     <button class="btn btn-outline-primary" type="button" id="btnSearch">
@@ -201,7 +201,23 @@
                     </button>
                 </div>
             </div>
-            <div class="col-md-6 text-md-end text-start order-md-2 mt-3 mt-md-0">
+            <div class="col-lg-4 order-lg-2 order-3">
+                <div class="d-flex flex-column gap-2 server-selector">
+                    <small class="text-muted text-uppercase fw-semibold">Chọn server</small>
+                    <div class="btn-group" role="group" aria-label="Chọn server">
+                        <input type="radio" class="btn-check" name="serverOption" id="btnServerOriginal" value="OriginalServer" autocomplete="off" checked>
+                        <label class="btn btn-outline-secondary" for="btnServerOriginal">Server gốc</label>
+
+                        <input type="radio" class="btn-check" name="serverOption" id="btnServerK1" value="ServerK1" autocomplete="off">
+                        <label class="btn btn-outline-secondary" for="btnServerK1">Server K1</label>
+
+                        <input type="radio" class="btn-check" name="serverOption" id="btnServerK2" value="ServerK2" autocomplete="off">
+                        <label class="btn btn-outline-secondary" for="btnServerK2">Server K2</label>
+                    </div>
+                    <div class="text-muted small">Đang dùng: <span id="serverSelectionStatus" class="fw-semibold text-primary">Server gốc</span></div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end text-start order-lg-3 order-1 mt-3 mt-lg-0">
                 <button class="btn btn-primary" id="btnAddClub" data-bs-toggle="modal" data-bs-target="#modalAdd">
                     <i class="bi bi-plus-circle"></i> Thêm Câu Lạc Bộ
                 </button>
@@ -398,17 +414,50 @@
 
     @section Scripts {
         <script>
-            const apiUrl = "http://localhost:5057/api/CauLacBo";
+            const apiBaseUrl = "http://localhost:5057/api/CauLacBo";
+            const serverDisplayNames = {
+                OriginalServer: "Server gốc",
+                ServerK1: "Server K1",
+                ServerK2: "Server K2"
+            };
             const tbody = document.getElementById("clbTableBody");
             const loader = document.getElementById("data-loading-indicator");
             const paginationControls = document.getElementById("pagination-controls");
 
+            let currentServer = 'OriginalServer';
             let clubData = [];
+            let serverSelectionStatusEl = null;
 
             // 🆕 Biến phân trang
             const rowsPerPage = 7;
             let currentPage = 1;
             let currentFilteredData = []; // Dữ liệu hiện tại đang được phân trang/tìm kiếm
+
+            function withServerParam(url) {
+                const separator = url.includes('?') ? '&' : '?';
+                return `${url}${separator}serverEnum=${currentServer}`;
+            }
+
+            function updateServerStatusLabel() {
+                if (serverSelectionStatusEl) {
+                    serverSelectionStatusEl.textContent = serverDisplayNames[currentServer] ?? currentServer;
+                }
+            }
+
+            async function reloadDataForServer() {
+                showLoader();
+                try {
+                    await loadClubs({ skipLoader: true });
+                } catch (err) {
+                    console.error("Lỗi khi tải dữ liệu theo server:", err);
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">
+                                                        Không tải được dữ liệu cho ${serverDisplayNames[currentServer] ?? currentServer}.
+                                                    </td></tr>`;
+                    paginationControls.innerHTML = '';
+                } finally {
+                    hideLoader();
+                }
+            }
 
             // 🟢 Hàm tìm CLB theo Mã CLB
             function findClubByMaClb(maClb) {
@@ -510,12 +559,15 @@
             }
 
 
-            async function loadClubs() {
-                showLoader();
+            async function loadClubs(options = {}) {
+                const { skipLoader = false } = options;
+                if (!skipLoader) {
+                    showLoader();
+                }
                 clubData = [];
 
                 try {
-                    const response = await fetch(apiUrl);
+                    const response = await fetch(withServerParam(apiBaseUrl));
 
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -535,7 +587,9 @@
                                                     </td></tr>`;
                     paginationControls.innerHTML = '';
                 } finally {
-                    hideLoader();
+                    if (!skipLoader) {
+                        hideLoader();
+                    }
                 }
             }
 
@@ -594,7 +648,7 @@
             async function loadClubsAfterAction(targetPage) {
                 showLoader();
                 try {
-                    const response = await fetch(apiUrl);
+                    const response = await fetch(withServerParam(apiBaseUrl));
                     if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
 
                     clubData = await response.json();
@@ -623,7 +677,7 @@
                 const newClb = { tenClb, tenKhoa };
                 showLoader();
                 try {
-                    const response = await fetch(apiUrl, {
+                    const response = await fetch(withServerParam(apiBaseUrl), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(newClb)
@@ -661,7 +715,7 @@
                 }
 
                 const updatedClb = { maClb, tenClb, tenKhoa, rowguid };
-                const editUrl = `${apiUrl}/${maClb}`;
+                const editUrl = withServerParam(`${apiBaseUrl}/${maClb}`);
                 showLoader();
                 try {
                     const response = await fetch(editUrl, {
@@ -692,7 +746,7 @@
             // 3. CHỨC NĂNG XÓA (DELETE)
             async function handleDeleteConfirm() {
                 const maClb = document.getElementById('deleteTargetMaClb').value;
-                const deleteUrl = `${apiUrl}/${maClb}`;
+                const deleteUrl = withServerParam(`${apiBaseUrl}/${maClb}`);
                 showLoader();
                 try {
                     const response = await fetch(deleteUrl, {
@@ -733,8 +787,23 @@
             window.showDeleteModal = showDeleteModal;
 
 
-            document.addEventListener("DOMContentLoaded", () => {
-                loadClubs();
+            document.addEventListener("DOMContentLoaded", async () => {
+                serverSelectionStatusEl = document.getElementById('serverSelectionStatus');
+                updateServerStatusLabel();
+
+                const serverOptionInputs = document.querySelectorAll('input[name="serverOption"]');
+                serverOptionInputs.forEach(input => {
+                    input.addEventListener('change', async (event) => {
+                        if (!event.target.checked) return;
+                        const selectedServer = event.target.value;
+                        if (selectedServer === currentServer) return;
+                        currentServer = selectedServer;
+                        updateServerStatusLabel();
+                        await reloadDataForServer();
+                    });
+                });
+
+                await loadClubs();
 
                 // Gắn sự kiện cho các nút Submit
                 document.getElementById('btnSubmitAdd').addEventListener('click', handleAddSubmit);

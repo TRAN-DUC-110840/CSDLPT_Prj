@@ -1,6 +1,7 @@
 using CSDLPT_API.Context;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
+using CSDLPT_API.Enums;
 using CSDLPT_API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,30 +14,35 @@ namespace CSDLPT_API.Controllers;
 
 public class CauLacBoController : ControllerBase
 {
-	private readonly MyDbContext _db;
+	private readonly serverSwitcherHelper _serverSwitcherHelper;
 
-	public CauLacBoController(MyDbContext db)
+	public CauLacBoController(serverSwitcherHelper serverSwitcherHelper)
 	{
-		_db = db;
+		_serverSwitcherHelper = serverSwitcherHelper;
 	}
 
 	[HttpGet]
-	public IActionResult GetAll()
+	public IActionResult GetAll(serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
 		return Ok(_db.CauLacBos.ToList());
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetById(string id)
+	public async Task<IActionResult> GetById(string id , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.CauLacBos.FindAsync(id);
 		if (item == null) return NotFound();
 		return Ok(item);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Create([FromBody] CauLacBoCreateDto dto)
+	public async Task<IActionResult> Create([FromBody] CauLacBoCreateDto dto , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		if (string.IsNullOrWhiteSpace(dto.TenKhoa) || !dto.TenKhoa.StartsWith("K"))
 			return BadRequest(new { message = "TenKhoa phải bắt đầu bằng 'K'" });
 
@@ -52,8 +58,10 @@ public class CauLacBoController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> Update(string id, [FromBody] CauLacBoUpdateDto dto)
+	public async Task<IActionResult> Update(string id, [FromBody] CauLacBoUpdateDto dto , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.CauLacBos.FindAsync(id);
 		if (item == null) return NotFound();
 		if (string.IsNullOrWhiteSpace(dto.TenKhoa) || !dto.TenKhoa.StartsWith("K"))
@@ -65,8 +73,10 @@ public class CauLacBoController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> Delete(string id)
+	public async Task<IActionResult> Delete(string id , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.CauLacBos.FindAsync(id);
 		if (item == null) return NotFound();
 		_db.CauLacBos.Remove(item);

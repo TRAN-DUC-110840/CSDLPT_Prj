@@ -1,6 +1,8 @@
 using CSDLPT_API.Context;
 using CSDLPT_API.Entities;
 using CSDLPT_API.Dtos;
+using CSDLPT_API.Enums;
+using CSDLPT_API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,30 +13,36 @@ namespace CSDLPT_API.Controllers;
 [Authorize]
 public class BienLaiController : ControllerBase
 {
-	private readonly MyDbContext _db;
+	private readonly serverSwitcherHelper _serverSwitcherHelper;
 
-	public BienLaiController(MyDbContext db)
+	public BienLaiController(serverSwitcherHelper serverSwitcherHelper)
 	{
-		_db = db;
+		_serverSwitcherHelper = serverSwitcherHelper;
 	}
 
 	[HttpGet]
-	public IActionResult GetAll()
+	public IActionResult GetAll(serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		return Ok(_db.BienLais.ToList());
 	}
 
 	[HttpGet("{maLop}/{maSv}")]
-	public async Task<IActionResult> GetByKey(string maLop, string maSv)
+	public async Task<IActionResult> GetByKey(string maLop, string maSv , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.BienLais.FindAsync(maLop, maSv);
 		if (item == null) return NotFound();
 		return Ok(item);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Create([FromBody] BienLaiCreateDto dto)
+	public async Task<IActionResult> Create([FromBody] BienLaiCreateDto dto , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var entity = new BienLai
 		{
 			SoBienLai = dto.SoBienLai,
@@ -50,8 +58,10 @@ public class BienLaiController : ControllerBase
 	}
 
 	[HttpPut("{maLop}/{maSv}")]
-	public async Task<IActionResult> Update(string maLop, string maSv, [FromBody] BienLaiUpdateDto dto)
+	public async Task<IActionResult> Update(string maLop, string maSv, [FromBody] BienLaiUpdateDto dto , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.BienLais.FindAsync(maLop, maSv);
 		if (item == null) return NotFound();
 		item.SoBienLai = dto.SoBienLai;
@@ -63,8 +73,10 @@ public class BienLaiController : ControllerBase
 	}
 
 	[HttpDelete("{maLop}/{maSv}")]
-	public async Task<IActionResult> Delete(string maLop, string maSv)
+	public async Task<IActionResult> Delete(string maLop, string maSv , serverEnum serverEnum)
 	{
+		var _db = _serverSwitcherHelper.serverChangerHelper(serverEnum);
+
 		var item = await _db.BienLais.FindAsync(maLop, maSv);
 		if (item == null) return NotFound();
 		_db.BienLais.Remove(item);
