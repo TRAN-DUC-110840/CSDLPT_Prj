@@ -91,9 +91,16 @@
                                 <ion-icon name="receipt-outline" class="me-1"></ion-icon>Biên lai
                             </a>
                         </li>
-                        @* <li class="nav-item">
-                            <a class="nav-link" href="/DangXuat"><i class="bi bi-box-arrow-right"></i> Đăng Xuất</a>
-                        </li> *@
+                        <li class="nav-item" id="loginNavItem" style="display: none;">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Login">
+                                <ion-icon name="log-in-outline" class="me-1"></ion-icon>Đăng Nhập
+                            </a>
+                        </li>
+                        <li class="nav-item" id="logoutNavItem" style="display: none;">
+                            <a class="nav-link" href="#" onclick="logout(); return false;">
+                                <ion-icon name="log-out-outline" class="me-1"></ion-icon>Đăng Xuất
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -117,6 +124,22 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Cập nhật hiển thị nút đăng nhập/đăng xuất
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            const loginNavItem = document.getElementById('loginNavItem');
+            const logoutNavItem = document.getElementById('logoutNavItem');
+            
+            if (token) {
+                if (loginNavItem) loginNavItem.style.display = 'none';
+                if (logoutNavItem) logoutNavItem.style.display = 'block';
+            } else {
+                if (loginNavItem) loginNavItem.style.display = 'block';
+                if (logoutNavItem) logoutNavItem.style.display = 'none';
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

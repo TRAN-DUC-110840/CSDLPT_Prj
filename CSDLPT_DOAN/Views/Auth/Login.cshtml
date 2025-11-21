@@ -1,0 +1,121 @@
+@{
+    ViewData["Title"] = "Đăng Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Đăng Nhập</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" name="username" required autocomplete="username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Ghi nhớ đăng nhập
+                            </label>
+                        </div>
+                        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+                        <div id="successMessage" class="alert alert-success d-none" role="alert"></div>
+                        <button type="submit" class="btn btn-primary w-100" id="btnLogin">
+                            <span class="spinner-border spinner-border-sm d-none" id="loadingSpinner" role="status" aria-hidden="true"></span>
+                            <span id="btnText">Đăng Nhập</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sử dụng API_BASE_URL từ site.js hoặc giá trị từ ViewBag
+        const loginApiUrl = window.API_BASE_URL || '@ViewBag.ApiBaseUrl' || 'http://localhost:5057/api';
+
+        // Kiểm tra nếu đã đăng nhập thì chuyển về trang chủ
+        if (localStorage.getItem('authToken')) {
+            window.location.href = '/Home/Index';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btnLogin = document.getElementById('btnLogin');
+            const btnText = document.getElementById('btnText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            // Ẩn thông báo lỗi trước đó
+            errorMessage.classList.add('d-none');
+            successMessage.classList.add('d-none');
+
+            // Hiển thị loading
+            btnLogin.disabled = true;
+            btnText.textContent = 'Đang đăng nhập...';
+            loadingSpinner.classList.remove('d-none');
+
+            try {
+                const response = await fetch(`${loginApiUrl}/Auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    // Lưu token vào localStorage
+                    localStorage.setItem('authToken', data.token);
+                    
+                    // Lưu thông tin user nếu có
+                    if (data.user) {
+                        localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    }
+
+                    successMessage.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
+                    successMessage.classList.remove('d-none');
+
+                    // Chuyển về trang chủ sau 1 giây
+                    setTimeout(() => {
+                        window.location.href = '/Home/Index';
+                    }, 1000);
+                } else {
+                    // Hiển thị lỗi
+                    errorMessage.textContent = data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+                    errorMessage.classList.remove('d-none');
+                    btnLogin.disabled = false;
+                    btnText.textContent = 'Đăng Nhập';
+                    loadingSpinner.classList.add('d-none');
+                }
+            } catch (error) {
+                console.error('Lỗi khi đăng nhập:', error);
+                errorMessage.textContent = 'Có lỗi xảy ra khi kết nối đến server. Vui lòng thử lại sau.';
+                errorMessage.classList.remove('d-none');
+                btnLogin.disabled = false;
+                btnText.textContent = 'Đăng Nhập';
+                loadingSpinner.classList.add('d-none');
+            }
+        });
+    </script>
+}
+
