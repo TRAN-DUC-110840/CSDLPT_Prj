@@ -6,17 +6,28 @@
 // Cấu hình API Base URL
 window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:5057/api';
 
+// Hàm hỗ trợ xác định request đến API
+function isApiRequest(input) {
+    if (!input) return false;
+    if (typeof input === 'string') {
+        return input.includes('/api/');
+    }
+    if (input instanceof Request) {
+        return input.url.includes('/api/');
+    }
+    return false;
+}
+
 // Interceptor để tự động thêm token vào các request
 (function() {
     const originalFetch = window.fetch;
     
     window.fetch = function(...args) {
         const token = localStorage.getItem('authToken');
+        const requestIsApi = isApiRequest(args[0]);
         
         // Nếu có token và là request đến API
-        if (token && args[0] && (typeof args[0] === 'string' && args[0].includes('/api/')) || 
-            (args[0] instanceof Request && args[0].url.includes('/api/'))) {
-            
+        if (token && requestIsApi) {
             const options = args[1] || {};
             options.headers = options.headers || {};
             
@@ -31,8 +42,8 @@ window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:5057/api';
         }
         
         return originalFetch.apply(this, args).then(response => {
-            // Nếu token hết hạn hoặc không hợp lệ
-            if (response.status === 401) {
+            // Chỉ clear token nếu API trả về 401
+            if (response.status === 401 && response.url && response.url.includes('/api/')) {
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userInfo');
                 window.location.href = '/Auth/Login';
