@@ -647,7 +647,6 @@
             showLoader();
             try {
                 const response = await fetch(withServerParam(apiBaseUrl));
-                const response = await fetch(withServerParam(apiBaseUrl));
                 if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
 
                 blData = await response.json();
