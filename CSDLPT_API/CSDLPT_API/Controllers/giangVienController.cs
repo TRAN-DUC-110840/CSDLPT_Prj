@@ -49,7 +49,7 @@ public class giangVienController : ControllerBase
         
         try
 		{
-			var nextId = IdHelper.GenerateNextId(_db.GiangViens.Select(x => x.MaGv), "GV", 3);
+			var nextId = IdHelper.GenerateNextId(_db.GiangViens.Select(x => x.MaGv), "GV", 2, serverEnum);
 			var gvObject = new GiangVien()
             {
 				HoTenGv = gvDto.HoTenGv,

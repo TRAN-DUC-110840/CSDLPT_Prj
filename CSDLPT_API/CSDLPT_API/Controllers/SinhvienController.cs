@@ -46,7 +46,7 @@ public class SinhvienController : ControllerBase
 
 		var entity = new Sinhvien
 		{
-			MaSv = IdHelper.GenerateNextId(_db.Sinhviens.Select(x => x.MaSv), "SV", 3),
+			MaSv = IdHelper.GenerateNextId(_db.Sinhviens.Select(x => x.MaSv), "SV", 2, serverEnum),
 			TenSv = dto.TenSv,
 			MaClb = dto.MaClb
 		};

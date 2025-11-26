@@ -16,14 +16,14 @@ builder.Services.AddScoped<serverSwitcherHelper>();
 // Add services to the container.
 
 builder.Services.AddDbContext<CSDLPT_API.Context.MyDbContext>(options =>
-options.UseSqlServer("Server=26.148.184.54,1433;User Id=sa;Password=anhduc9A@5;Database=CSDLPT;Trust Server Certificate=True;"));
+options.UseSqlServer("Server=26.148.184.54,1433;User Id=sa;Password=anhduc9A@5;Database=CSDLPT_2;Trust Server Certificate=True;"));
 
 builder.Services.AddDbContext<CSDLPT_API.Context.K1DBContext>(options =>
-	options.UseSqlServer("Server=26.90.78.94;User Id=sa;Password=123;Database=5:33_K1;Trust Server Certificate=True;"));
+	options.UseSqlServer("Server=26.90.78.94;User Id=sa;Password=123;Database=CSDLPT_2_K1;Trust Server Certificate=True;"));
 
 
 builder.Services.AddDbContext<CSDLPT_API.Context.K2DBContext>(options =>
-	options.UseSqlServer("Server=26.156.200.86,1433;User Id=sa;Password=123;Database=K2_PhanTan_Ver2;Trust Server Certificate=True;"));
+	options.UseSqlServer("Server=26.156.200.86,1433;User Id=sa;Password=123;Database=K2_CSDLPT_2;Trust Server Certificate=True;"));
 
 
 
