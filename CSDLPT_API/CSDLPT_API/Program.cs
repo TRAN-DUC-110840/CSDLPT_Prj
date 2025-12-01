@@ -36,7 +36,7 @@ builder.Services.AddDbContext<CSDLPT_API.Context.K2DBContext>(options =>
 // options.UseSqlServer("Server=26.124.72.154,1433;User Id=sa;Password=anhduc9A@5;Database=CSDLPT_2;Trust Server Certificate=True;"));
 
 // builder.Services.AddDbContext<CSDLPT_API.Context.K1DBContext>(options =>
-// 	options.UseSqlServer("Server=26.90.78.94;User Id=sa;Password=123456;Database=CSDLPT_2_K1_Backup;Trust Server Certificate=True;"));
+// 	options.UseSqlServer("Server=26.90.78.94;User Id=sa;Password=123;Database=CSDLPT_2_K1_Backup;Trust Server Certificate=True;"));
 
 
 // builder.Services.AddDbContext<CSDLPT_API.Context.K2DBContext>(options =>
