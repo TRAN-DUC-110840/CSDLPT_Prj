@@ -48,7 +48,7 @@ public class CauLacBoController : ControllerBase
 
 		var entity = new CauLacBo
 		{
-			MaClb = IdHelper.GenerateNextId(_db.CauLacBos.Select(x => x.MaClb), "CLB", 1, serverEnum),
+			MaClb = IdHelper.GenerateRandomId(_db.CauLacBos.Select(x => x.MaClb)),
 			TenClb = dto.TenClb,
 			TenKhoa = dto.TenKhoa
 		};

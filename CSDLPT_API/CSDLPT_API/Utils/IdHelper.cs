@@ -90,6 +90,36 @@ public static class IdHelper
 		var formatted = next.ToString(new string('0', digits));
 		return prefix + formatted;
 	}
+
+	/// <summary>
+	/// Tạo ID ngẫu nhiên 5 ký tự (chữ và số)
+	/// </summary>
+	/// <param name="existingIds">Danh sách ID hiện có để tránh trùng lặp</param>
+	/// <returns>ID ngẫu nhiên 5 ký tự duy nhất</returns>
+	public static string GenerateRandomId(IEnumerable<string> existingIds)
+	{
+		const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		var random = new Random();
+		var existingIdsSet = new HashSet<string>(existingIds ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+		
+		string newId;
+		int attempts = 0;
+		const int maxAttempts = 1000; // Giới hạn số lần thử để tránh vòng lặp vô hạn
+		
+		do
+		{
+			newId = new string(Enumerable.Repeat(chars, MaxIdLength)
+				.Select(s => s[random.Next(s.Length)]).ToArray());
+			attempts++;
+			
+			if (attempts >= maxAttempts)
+			{
+				throw new InvalidOperationException("Không thể tạo ID ngẫu nhiên duy nhất sau nhiều lần thử");
+			}
+		} while (existingIdsSet.Contains(newId));
+		
+		return newId;
+	}
 }
 
 

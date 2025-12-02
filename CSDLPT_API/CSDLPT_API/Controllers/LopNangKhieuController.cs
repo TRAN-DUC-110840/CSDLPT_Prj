@@ -45,7 +45,7 @@ public class LopNangKhieuController : ControllerBase
 
 		var entity = new LopNangKhieu
 		{
-			MaLop = IdHelper.GenerateNextId(_db.LopNangKhieus.Select(x => x.MaLop), "LOP", 1, serverEnum),
+			MaLop = IdHelper.GenerateRandomId(_db.LopNangKhieus.Select(x => x.MaLop)),
 			NgayMo = dto.NgayMo,
 			MaGv = dto.MaGv,
 			HocPhi = dto.HocPhi
